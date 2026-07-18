@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10-in-1 Confluence & SMT Signal Center</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Background glow circles -->
+  <div class="glow-bg glow-1"></div>
+  <div class="glow-bg glow-2"></div>
+
+  <div class="container">
+    <!-- Header Area -->
+    <header class="glass-panel main-header">
+      <div class="header-logo">
+        <div class="status-indicator connected" id="connection-status"></div>
+        <h1>10-in-1 Signal Center</h1>
+        <span class="badge-premium">REAL-TIME</span>
+      </div>
+
+      <div class="controls">
+        <div class="control-toggle">
+          <label class="switch">
+            <input type="checkbox" id="filter-strong" checked>
+            <span class="slider round"></span>
+          </label>
+          <span class="control-label">Strong Confluence (7+/10) Only</span>
+        </div>
+
+        <button id="btn-sound" class="btn-secondary">
+          <span class="icon">🔊</span> Sound On
+        </button>
+
+        <button id="btn-simulate" class="btn-primary">
+          <span class="icon">⚡</span> Simulate Signal
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Grid Dashboard: 12 Pairs -->
+    <section class="pairs-grid" id="pairs-container">
+      <!-- Generated Dynamically by JS for XAUUSD, BTCUSDT, NAS100, USDJPY, GBPJPY, EURUSD, GBPUSD, AUDUSD, USDCAD, NZDUSD, US30, XAGUSD -->
+    </section>
+
+    <!-- Lower Section: Signal Logs & Webhook Config -->
+    <div class="layout-lower">
+      <!-- Webhook Logs -->
+      <section class="glass-panel signals-log">
+        <div class="panel-header">
+          <h2>Live Signals Feed</h2>
+          <button id="btn-clear-logs" class="btn-text">Clear Logs</button>
+        </div>
+        <div class="table-container">
+          <table id="logs-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Symbol</th>
+                <th>TF</th>
+                <th>Price</th>
+                <th>Confluence</th>
+                <th>Direction</th>
+                <th>Active Rules</th>
+                <th>SMT Check</th>
+                <th>Chart</th>
+              </tr>
+            </thead>
+            <tbody id="logs-body">
+              <tr class="placeholder-row">
+                <td colspan="9">Waiting for signals from TradingView... Click "Simulate Signal" to test.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Connection Help -->
+      <section class="glass-panel setup-guide">
+        <h2>TradingView Setup Guide</h2>
+        <ol class="guide-list">
+          <li>Create an alert on TradingView using our indicator.</li>
+          <li>Set the **Condition** to the indicator name, and select **`Any alert() function call`**.</li>
+          <li>Check the **Webhook URL** box and paste your **public tunnel URL** (displayed in your black command window, e.g. `https://your-tunnel.serveousercontent.com/webhook`).</li>
+          <li>Set the alert message body exactly to:
+            <pre><code>{
+  "symbol": "{{ticker}}",
+  "timeframe": "{{interval}}",
+  "direction": "{{plot_2}}",
+  "score": "{{plot_0}}",
+  "rules": "{{plot_4}}",
+  "smt": "{{plot_3}}",
+  "price": "{{close}}",
+  "image": "{{image}}"
+}</code></pre>
+          </li>
+        </ol>
+      </section>
+    </div>
+  </div>
+
+  <!-- Advanced Signal Details & Analysis Modal -->
+  <div id="image-modal" class="modal">
+    <div class="analysis-container">
+      <span class="close-modal">&times;</span>
+      
+      <div class="analysis-grid">
+        <!-- Left Pane: Image & PnL Tool -->
+        <div class="analysis-left">
+          <div class="tab-header">
+            <button class="tab-btn active" id="btn-tab-chart" onclick="switchLeftTab('chart')">📸 Chart View</button>
+            <button class="tab-btn" id="btn-tab-pnl" onclick="switchLeftTab('pnl')">📊 Risk/Reward (PnL)</button>
+          </div>
+          <div class="tab-content" id="chart-content">
+            <img id="modal-img" src="" alt="Chart Screenshot">
+          </div>
+          <div class="tab-content" id="pnl-content" style="display:none;">
+            <!-- PnL Position Widget is dynamically injected here -->
+          </div>
+        </div>
+        
+        <!-- Right Pane: Confluence & Strategy Breakdown -->
+        <div class="analysis-right">
+          <div class="analysis-header-info">
+            <h2 id="analysis-title">XAUUSD BUY</h2>
+            <div id="analysis-meta" style="margin-top: 8px; display: flex; gap: 10px; align-items: center;">
+              <span id="analysis-timeframe" class="tf-badge">-</span>
+              <span id="analysis-price" style="font-weight: 800; font-size: 14px; color: #fff;">-</span>
+            </div>
+          </div>
+          
+          <div class="confluence-stats" style="margin-top: 15px;">
+            <div class="stat-box">
+              <span class="stat-val" id="analysis-score">-</span>
+              <span class="stat-label">Confluence Score</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-val" id="analysis-smt">-</span>
+              <span class="stat-label">SMT Divergence</span>
+            </div>
+          </div>
+          
+          <div class="triggered-rules-container" style="margin-top: 20px;">
+            <h3>Triggered Rules Breakdown</h3>
+            <div class="strategy-cards-list" id="analysis-rules-cards">
+              <!-- Dynamically populated strategy cards with descriptions & CSS diagrams -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio asset for signal alerts -->
+  <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav" preload="auto"></audio>
+  <audio id="strong-alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-600.wav" preload="auto"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
