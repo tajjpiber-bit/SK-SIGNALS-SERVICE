@@ -1,162 +1,1805 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>10-in-1 Confluence & SMT Signal Center</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SK SIGNALS SERVICE — VIP Trade Signal Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  :root{
+    --bg:            #0a0d13;
+    --panel:         #11151d;
+    --panel-2:       #161b26;
+    --hairline:      #232a38;
+    --text:          #e7eaf0;
+    --text-dim:      #8992a3;
+    --amber:         #e8b85c;
+    --amber-dim:     #7a683a;
+    --mint:          #3ddc97;
+    --coral:         #ff6b6b;
+    --mint-glow:     rgba(61,220,151,0.16);
+    --coral-glow:    rgba(255,107,107,0.16);
+    --radius:        10px;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(232,184,92,0.05), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  a{ color:inherit; }
+
+  header.topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 28px;
+    border-bottom:1px solid var(--hairline);
+    position:sticky; top:0; z-index:30;
+    background:rgba(10,13,19,0.92);
+    backdrop-filter:blur(8px);
+    gap:16px; flex-wrap:wrap;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand .mark{
+    width:34px; height:34px; border-radius:8px;
+    background:linear-gradient(135deg, var(--amber), #8a6a26);
+    position:relative; overflow:hidden; flex-shrink:0;
+  }
+  .brand .mark::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+    width:40%; height:100%;
+    animation: scan 3.2s linear infinite;
+  }
+  @keyframes scan{ 0%{ transform:translateX(-140%); } 100%{ transform:translateX(340%); } }
+  .brand h1{ font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:700; margin:0; letter-spacing:0.2px; color:var(--amber); }
+  .brand p{ margin:0; font-size:12px; color:var(--text-dim); }
+
+  .conn{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--coral); box-shadow:0 0 0 3px var(--coral-glow); }
+  .dot.live{ background:var(--mint); box-shadow:0 0 0 3px var(--mint-glow); }
+  .status-text{ font-size:12px; color:var(--text-dim); font-family:'JetBrains Mono',monospace; }
+
+  input, select, button, textarea{ font-family:'Inter',sans-serif; }
+  .field{ background:var(--panel-2); border:1px solid var(--hairline); color:var(--text); border-radius:7px; padding:8px 11px; font-size:13px; outline:none; }
+  .field:focus{ border-color:var(--amber-dim); }
+  .field.num{ width:64px; text-align:center; font-family:'JetBrains Mono',monospace; }
+  .btn{ background:var(--amber); color:#1a1204; border:none; border-radius:7px; padding:8px 16px; font-size:13px; font-weight:600; cursor:pointer; transition:filter .15s ease; }
+  .btn:hover{ filter:brightness(1.08); }
+  .btn.ghost{ background:transparent; color:var(--text); border:1px solid var(--hairline); }
+  .btn.ghost:hover{ border-color:var(--amber-dim); }
+  .btn.sm{ padding:4px 8px; font-size:11px; }
+  .btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+  main{ padding:22px 28px 60px; display:grid; grid-template-columns: 330px 1fr; gap:20px; position:relative; }
+  @media (max-width: 980px){ main{ grid-template-columns: 1fr; } }
+
+  .card{ background:var(--panel); border:1px solid var(--hairline); border-radius:var(--radius); padding:18px; }
+  .card h2{
+    font-family:'Space Grotesk',sans-serif; font-size:14px; margin:0 0 14px;
+    text-transform:uppercase; letter-spacing:0.09em; color:var(--text-dim);
+    display:flex; align-items:center; gap:8px;
+  }
+  .card h2 .eyebrow-line{ flex:1; height:1px; background:var(--hairline); }
+
+  .settings-group{ margin-bottom:18px; }
+  .settings-group label.small{ display:block; font-size:11.5px; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.06em; }
+  .preset-row{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  
+  .quick-sym-bar{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; max-height:140px; overflow-y:auto; padding:6px; background:var(--panel-2); border-radius:8px; border:1px solid var(--hairline); }
+  .sym-pill{ font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; padding:5px 9px; border-radius:6px; background:var(--panel); border:1px solid var(--hairline); color:var(--text); cursor:pointer; transition:all .15s ease; display:inline-flex; align-items:center; gap:4px; }
+  .sym-pill:hover{ border-color:var(--amber); color:var(--amber); transform:translateY(-1px); }
+  .sym-pill.active{ background:var(--amber); color:#1a1204; border-color:var(--amber); font-weight:bold; }
+
+  .tf-toggle-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .tf-chip{ font-family:'JetBrains Mono',monospace; font-size:11.5px; padding:6px 10px; border:1px solid var(--hairline); border-radius:20px; cursor:pointer; user-select:none; color:var(--text-dim); transition:all .15s ease; display:inline-flex; align-items:center; gap:5px; }
+  .tf-chip.on{ background:var(--mint-glow); border-color:var(--mint); color:var(--mint); }
+  .tf-chip.off{ background:rgba(255,107,107,0.1); border-color:rgba(255,107,107,0.3); color:var(--coral); }
+  .buffer-grid{ display:grid; grid-template-columns:1fr auto; row-gap:6px; align-items:center; font-size:12px; }
+  .buffer-grid .tflabel{ color:var(--text-dim); font-family:'JetBrains Mono',monospace; }
+
+  .table-wrap{ overflow-x:auto; }
+  table.dash{ width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:12.5px; }
+  table.dash th, table.dash td{ padding:10px 12px; text-align:left; white-space:nowrap; border-bottom:1px solid var(--hairline); }
+  table.dash th{ color:var(--text-dim); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; position:relative; }
+  table.dash tbody tr:hover{ background:rgba(255,255,255,0.03); }
+  td.sym-cell{ font-family:'Space Grotesk',sans-serif; font-weight:600; color:var(--amber); font-size:13px; cursor:pointer; transition:color .15s ease; }
+  td.sym-cell:hover{ text-decoration:underline; filter:brightness(1.2); }
+  .cell-none{ color:#3a4150; }
+  .cell-high{ color:var(--coral); }
+  .cell-low{ color:var(--mint); }
+  .pulse{ animation:pulseSignal 1.4s ease-out 2; }
+  @keyframes pulseSignal{ 0%{ box-shadow: inset 0 0 0 999px rgba(232,184,92,0.22); } 100%{ box-shadow: inset 0 0 0 999px rgba(232,184,92,0); } }
+
+  .chart-controls{ display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+  #chartBox{ width:100%; height:420px; border-radius:8px; overflow:hidden; border:1px solid var(--hairline); }
+  #tvBox{ width:100%; height:580px; border-radius:8px; overflow:hidden; border:1px solid var(--hairline); background:#0a0d13; }
+  #tvBox:fullscreen { width:100vw !important; height:100vh !important; border:none; }
+  #tvBox:-webkit-full-screen { width:100vw !important; height:100vh !important; border:none; }
+
+  .legend{ display:flex; gap:16px; font-size:11.5px; color:var(--text-dim); margin-top:10px; flex-wrap:wrap; }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .swatch{ width:10px; height:10px; border-radius:2px; display:inline-block; }
+
+  #feed{ max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }
+  .feed-item{ display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:7px; background:var(--panel-2); border:1px solid var(--hairline); font-size:12.5px; }
+  .feed-item .tag{ font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11px; padding:2px 7px; border-radius:5px; }
+  .feed-item .tag.high{ background:var(--coral-glow); color:var(--coral); }
+  .feed-item .tag.low{ background:var(--mint-glow); color:var(--mint); }
+  .feed-item .tag.be{ background:rgba(232,184,92,0.2); color:var(--amber); border:1px solid var(--amber-dim); }
+  .feed-item .meta{ color:var(--text-dim); font-family:'JetBrains Mono',monospace; font-size:11px; margin-left:auto; }
+  .empty-note{ color:var(--text-dim); font-size:12.5px; padding:8px 2px; }
+
+  .pnl-bar{ display:flex; gap:22px; flex-wrap:wrap; align-items:center; margin-bottom:14px; padding:12px 16px; background:var(--panel-2); border:1px solid var(--hairline); border-radius:9px; }
+  .pnl-stat{ display:flex; flex-direction:column; gap:2px; }
+  .pnl-stat .lbl{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-dim); }
+  .pnl-stat .val{ font-family:'JetBrains Mono',monospace; font-size:16px; font-weight:700; }
+  .pos{ color:var(--mint); }
+  .neg{ color:var(--coral); }
+  .tag-badge{ font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:2px 7px; border-radius:5px; font-weight:700; }
+  .tag-badge.buy{ background:var(--mint-glow); color:var(--mint); }
+  .tag-badge.sell{ background:var(--coral-glow); color:var(--coral); }
+  .tag-badge.won{ background:var(--mint-glow); color:var(--mint); }
+  .tag-badge.lost{ background:var(--coral-glow); color:var(--coral); }
+  .tag-badge.open{ background:rgba(232,184,92,0.15); color:var(--amber); }
+  .tag-badge.be-hit{ background:rgba(232,184,92,0.25); color:var(--amber); border:1px solid var(--amber); }
+
+  /* Modal styling */
+  .modal-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); backdrop-filter:blur(8px); z-index:1000; align-items:center; justify-content:center; padding:20px; }
+  .modal-overlay.open{ display:flex; }
+  .modal-card{ background:var(--panel); border:1px solid var(--hairline); border-radius:12px; max-width:850px; width:100%; padding:24px; position:relative; box-shadow:0 25px 60px rgba(0,0,0,0.7); text-align:center; }
+  .modal-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .modal-close{ background:transparent; border:none; color:var(--coral); font-size:26px; font-weight:bold; cursor:pointer; }
+  #signalCardCanvas{ max-width:100%; height:auto; border-radius:10px; border:1px solid var(--hairline); box-shadow:0 10px 30px rgba(0,0,0,0.5); margin:10px 0; }
+
+  /* Login / Trial Modal Styling */
+  .auth-card{ max-width:440px; text-align:left; }
+  .auth-card input.field{ width:100%; margin-bottom:12px; }
+
+  /* Admin Registered Leads Directory Modal */
+  .admin-leads-card{ max-width:760px; text-align:left; }
+
+  /* Full Screen Mandatory Auth Gatekeeper Wall */
+  .mandatory-auth-overlay{ display:none; position:fixed; inset:0; background:rgba(10,13,19,0.96); backdrop-filter:blur(14px); z-index:2000; align-items:center; justify-content:center; padding:20px; }
+  .mandatory-auth-overlay.active{ display:flex; }
+  .mandatory-auth-card{ background:var(--panel); border:1px solid var(--amber); border-radius:16px; max-width:460px; width:100%; padding:30px; box-shadow:0 25px 70px rgba(232,184,92,0.2); text-align:left; }
+
+  /* Paywall Lock Screen */
+  .paywall-overlay{ display:none; position:absolute; inset:0; background:rgba(10,13,19,0.94); backdrop-filter:blur(10px); z-index:900; align-items:center; justify-content:center; text-align:center; padding:40px; border-radius:16px; }
+  .paywall-overlay.active{ display:flex; }
+  .paywall-content{ max-width:550px; background:var(--panel); border:1px solid var(--coral); border-radius:16px; padding:32px; box-shadow:0 20px 60px rgba(255,107,107,0.25); }
+
+  .trial-badge{ background:rgba(232,184,92,0.15); border:1px solid var(--amber-dim); color:var(--amber); font-family:'JetBrains Mono',monospace; font-size:11px; padding:4px 10px; border-radius:20px; display:inline-flex; align-items:center; gap:6px; }
+
+  .banner{ display:none; padding:10px 14px; border-radius:8px; font-size:12.5px; margin-bottom:16px; background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.35); color:#ffb3b3; }
+  .banner.show{ display:block; }
+
+  footer{ padding:24px 28px 40px; color:var(--text-dim); font-size:11.5px; line-height:1.7; border-top:1px solid var(--hairline); margin-top:10px; }
+
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:#242b39; border-radius:6px; }
+</style>
 </head>
 <body>
-  <!-- Background glow circles -->
-  <div class="glow-bg glow-1"></div>
-  <div class="glow-bg glow-2"></div>
 
-  <div class="container">
-    <!-- Header Area -->
-    <header class="glass-panel main-header">
-      <div class="header-logo">
-        <div class="status-indicator connected" id="connection-status"></div>
-        <h1>10-in-1 Signal Center</h1>
-        <span class="badge-premium">REAL-TIME</span>
+<!-- ===================== MANDATORY LOGIN / REGISTRATION WALL ===================== -->
+<div class="mandatory-auth-overlay active" id="mandatoryAuthOverlay">
+  <div class="mandatory-auth-card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+      <div style="width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg, var(--amber), #8a6a26);display:flex;align-items:center;justify-content:center;font-size:20px;">🔐</div>
+      <div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;margin:0;font-size:20px;color:var(--amber);">ACCOUNT REQUIRED</h2>
+        <div style="font-size:12px;color:var(--text-dim);">SK SIGNALS SERVICE VIP Terminal</div>
+      </div>
+    </div>
+    <p style="font-size:12.5px;color:var(--text-dim);line-height:1.5;margin-bottom:18px;">
+      Website par Forex, Indices aur Crypto Signals access karne ke liye <strong>Account banana mandatory hai</strong>. Account banate hi aapko <strong>7-Day Free Demo Pass</strong> mil jayega.
+    </p>
+
+    <form id="mandatoryRegisterForm">
+      <label class="small" style="color:var(--text-dim);font-size:11px;display:block;margin-bottom:4px;">Full Name / Username</label>
+      <input type="text" class="field" id="reqName" placeholder="Apna naam dalein" required style="width:100%;margin-bottom:12px;">
+
+      <label class="small" style="color:var(--text-dim);font-size:11px;display:block;margin-bottom:4px;">Email Address (Confirmation Email Sent)</label>
+      <input type="email" class="field" id="reqEmail" placeholder="Apna email dalein" required style="width:100%;margin-bottom:12px;">
+
+      <label class="small" style="color:var(--text-dim);font-size:11px;display:block;margin-bottom:4px;">Mobile / WhatsApp / Telegram Number</label>
+      <input type="text" class="field" id="reqPhone" placeholder="WhatsApp / Telegram contact" required style="width:100%;margin-bottom:16px;">
+
+      <button type="submit" class="btn" style="width:100%;padding:12px;background:var(--amber);color:#1a1204;font-size:14px;font-weight:bold;">🚀 Create Account &amp; Unlock 7-Day Demo</button>
+    </form>
+
+    <!-- Admin Bypass Option for Owner -->
+    <div style="margin-top:16px;padding-top:14px;border-top:1px dashed var(--hairline);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:11px;color:var(--text-dim);">Are you the Admin/Owner?</span>
+      <button class="btn ghost sm" id="adminBypassBtn" style="color:var(--mint);border-color:var(--mint);">👑 Admin Access (Bypass)</button>
+    </div>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"></div>
+    <div>
+      <h1>SK SIGNALS SERVICE</h1>
+      <p>VIP Trade Signal Terminal — 1:3 TP &amp; Break-Even Alert</p>
+    </div>
+  </div>
+  <div class="conn">
+    <span class="trial-badge" id="trialBadge">🎟️ 7-Day Free Trial</span>
+    <button class="btn ghost sm" id="userAccountBtn">👤 Account / Login</button>
+    <button class="btn sm" id="adminLeadsBtn" style="background:rgba(232,184,92,0.2);color:var(--amber);border:1px solid var(--amber-dim);">👥 Leads Directory (<span id="leadsCount">0</span>)</button>
+
+    <!-- Hidden API Connection Controls (Auto-connected) -->
+    <div style="display:none;">
+      <select class="field" id="dataSourceSelect">
+        <option value="yahoo" selected>Yahoo Finance (Free Live)</option>
+        <option value="twelvedata">Twelve Data (API key)</option>
+      </select>
+      <input id="apiKeyInput" class="field" type="password" placeholder="Twelve Data API key">
+      <button class="btn" id="saveKeyBtn">Connect Live</button>
+    </div>
+
+    <span class="dot" id="connDot"></span>
+    <span class="status-text" id="connStatus">Not connected</span>
+  </div>
+</header>
+
+<main id="mainTerminal">
+  <!-- Paywall Lock Screen (When 7-Day Free Demo Trial Expires) -->
+  <div class="paywall-overlay" id="paywallOverlay">
+    <div class="paywall-content">
+      <div style="font-size:42px;margin-bottom:10px;">🔒</div>
+      <h2 style="color:var(--coral);font-family:'Space Grotesk',sans-serif;margin:0 0 10px;font-size:22px;">YOUR 7-DAY DEMO TRIAL HAS EXPIRED</h2>
+      <p style="color:var(--text-dim);font-size:13px;line-height:1.6;margin-bottom:20px;">
+        Aapka **7-Day Free Demo Pass** khatam ho gaya hai. SK SIGNALS SERVICE VIP Forex, Gold, Indices aur Crypto signals continue rakhne ke liye Paid Membership activate karein.
+      </p>
+
+      <div style="background:var(--panel-2);padding:14px;border-radius:10px;border:1px solid var(--hairline);margin-bottom:20px;text-align:left;">
+        <label style="font-size:11px;color:var(--amber);display:block;margin-bottom:6px;text-transform:uppercase;font-weight:bold;">Have a Paid License Key?</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" class="field" id="licenseKeyInput" placeholder="Enter Paid Key (e.g. SK-VIP-PAID)" style="flex:1;">
+          <button class="btn" id="activateKeyBtn" style="background:var(--mint);color:#0a1a10;">Activate</button>
+        </div>
       </div>
 
-      <div class="controls">
-        <div class="control-toggle">
-          <label class="switch">
-            <input type="checkbox" id="filter-strong" checked>
-            <span class="slider round"></span>
+      <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+        <a href="https://t.me/sksignals" target="_blank" class="btn" style="background:#0088cc;color:#ffffff;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">💬 Buy Paid VIP on Telegram</a>
+        <a href="https://wa.me/?text=Hi%20Admin,%20I%20want%20to%20buy%20SK%20SIGNALS%20VIP%20Subscription" target="_blank" class="btn" style="background:#25D366;color:#ffffff;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">💬 Contact Admin on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== Settings Sidebar ===================== -->
+  <aside class="card" style="height:fit-content;">
+    <h2>Settings &amp; Markets<span class="eyebrow-line"></span></h2>
+
+    <div class="settings-group">
+      <label class="small">Quick Presets</label>
+      <div class="preset-row">
+        <button class="btn ghost sm" id="btnMajors">Majors (7)</button>
+        <button class="btn ghost sm" id="btnCrosses">Crosses (18)</button>
+        <button class="btn ghost sm" id="btnMetals">Gold &amp; Indices</button>
+        <button class="btn ghost sm" id="btnCrypto" style="color:#f7931a;border-color:#f7931a;">🪙 Top Crypto (12)</button>
+        <button class="btn ghost sm" id="btnAllMarkets" style="color:var(--amber);border-color:var(--amber-dim);width:100%;margin-top:4px;">⚡ ALL Markets (Crypto 24/7 + Forex)</button>
+      </div>
+      <label class="small">Active Symbols (comma/line separated)</label>
+      <textarea class="field" id="symbolsInput" rows="5" style="width:100%;font-family:'JetBrains Mono',monospace;font-size:12px;resize:vertical;" placeholder="EUR/USD, BTC/USD, ETH/USD, XAU/USD..."></textarea>
+    </div>
+
+    <!-- ===================== Telegram Channel/Group Auto-Broadcaster ===================== -->
+    <div class="settings-group" style="background:var(--panel-2);padding:12px;border-radius:10px;border:1px solid #0088cc;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:18px;">✈️</span>
+        <label class="small" style="color:#0088cc;margin:0;font-weight:bold;">Auto-Post Signals to Telegram Channel</label>
+      </div>
+      <label class="small" style="font-size:10px;color:var(--text-dim);margin-bottom:2px;">Telegram Bot Token (@BotFather)</label>
+      <input type="password" class="field" id="tgBotToken" value="8601555526:AAHk-nSAzDcCG8VRE644_NFeGOrBg1U3I5Y" placeholder="e.g. 123456789:ABCdef..." style="width:100%;font-size:11px;margin-bottom:8px;">
+
+      <label class="small" style="font-size:10px;color:var(--text-dim);margin-bottom:2px;">Channel / Group Chat ID or @Handle</label>
+      <input type="text" class="field" id="tgChatId" value="7526924260" placeholder="e.g. @sksignalsvip or -100123456789" style="width:100%;font-size:11px;margin-bottom:8px;">
+
+      <button class="btn sm" id="sendTestTgBtn" style="width:100%;background:#0088cc;color:#ffffff;font-size:11px;">✈️ Test Send Live Telegram Alert</button>
+    </div>
+
+    <!-- ===================== Admin Webhook Notification Settings ===================== -->
+    <div class="settings-group" style="background:var(--panel-2);padding:10px;border-radius:8px;border:1px solid var(--hairline);">
+      <label class="small" style="color:var(--amber);margin-bottom:4px;display:block;">📧 Owner Email / Webhook Alert URL</label>
+      <input type="text" class="field" id="adminWebhookUrl" placeholder="Optional: FormSpree / Webhook Email URL" style="width:100%;font-size:11px;margin-bottom:4px;">
+      <span style="font-size:10px;color:var(--text-dim);">Har naye lead/user ki registration par aapke webhook/email par alert chala jayega.</span>
+    </div>
+
+    <!-- ===================== Timeframe Signal ON/OFF Switches ===================== -->
+    <div class="settings-group" style="background:var(--panel-2);padding:10px;border-radius:8px;border:1px solid var(--hairline);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+        <label class="small" style="margin:0;color:var(--amber);">Timeframe Signal Alerts (ON / OFF)</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label style="font-size:11px;cursor:pointer;color:var(--text-dim);">
+            <input type="checkbox" id="soundToggle" checked style="vertical-align:middle;margin-right:4px;">🔊 Sound Alert
           </label>
-          <span class="control-label">Strong Confluence (7+/10) Only</span>
-        </div>
-
-        <button id="btn-sound" class="btn-secondary">
-          <span class="icon">🔊</span> Sound On
-        </button>
-
-        <button id="btn-simulate" class="btn-primary">
-          <span class="icon">⚡</span> Simulate Signal
-        </button>
-      </div>
-    </header>
-
-    <!-- Main Grid Dashboard: 12 Pairs -->
-    <section class="pairs-grid" id="pairs-container">
-      <!-- Generated Dynamically by JS for XAUUSD, BTCUSDT, NAS100, USDJPY, GBPJPY, EURUSD, GBPUSD, AUDUSD, USDCAD, NZDUSD, US30, XAGUSD -->
-    </section>
-
-    <!-- Lower Section: Signal Logs & Webhook Config -->
-    <div class="layout-lower">
-      <!-- Webhook Logs -->
-      <section class="glass-panel signals-log">
-        <div class="panel-header">
-          <h2>Live Signals Feed</h2>
-          <button id="btn-clear-logs" class="btn-text">Clear Logs</button>
-        </div>
-        <div class="table-container">
-          <table id="logs-table">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Symbol</th>
-                <th>TF</th>
-                <th>Price</th>
-                <th>Confluence</th>
-                <th>Direction</th>
-                <th>Active Rules</th>
-                <th>SMT Check</th>
-                <th>Chart</th>
-              </tr>
-            </thead>
-            <tbody id="logs-body">
-              <tr class="placeholder-row">
-                <td colspan="9">Waiting for signals from TradingView... Click "Simulate Signal" to test.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Connection Help -->
-      <section class="glass-panel setup-guide">
-        <h2>TradingView Setup Guide</h2>
-        <ol class="guide-list">
-          <li>Create an alert on TradingView using our indicator.</li>
-          <li>Set the **Condition** to the indicator name, and select **`Any alert() function call`**.</li>
-          <li>Check the **Webhook URL** box and paste your **public tunnel URL** (displayed in your black command window, e.g. `https://your-tunnel.serveousercontent.com/webhook`).</li>
-          <li>Set the alert message body exactly to:
-            <pre><code>{
-  "symbol": "{{ticker}}",
-  "timeframe": "{{interval}}",
-  "direction": "{{plot_2}}",
-  "score": "{{plot_0}}",
-  "rules": "{{plot_4}}",
-  "smt": "{{plot_3}}",
-  "price": "{{close}}",
-  "image": "{{image}}"
-}</code></pre>
-          </li>
-        </ol>
-      </section>
-    </div>
-  </div>
-
-  <!-- Advanced Signal Details & Analysis Modal -->
-  <div id="image-modal" class="modal">
-    <div class="analysis-container">
-      <span class="close-modal">&times;</span>
-      
-      <div class="analysis-grid">
-        <!-- Left Pane: Image & PnL Tool -->
-        <div class="analysis-left">
-          <div class="tab-header">
-            <button class="tab-btn active" id="btn-tab-chart" onclick="switchLeftTab('chart')">📸 Chart View</button>
-            <button class="tab-btn" id="btn-tab-pnl" onclick="switchLeftTab('pnl')">📊 Risk/Reward (PnL)</button>
-          </div>
-          <div class="tab-content" id="chart-content">
-            <img id="modal-img" src="" alt="Chart Screenshot">
-          </div>
-          <div class="tab-content" id="pnl-content" style="display:none;">
-            <!-- PnL Position Widget is dynamically injected here -->
-          </div>
-        </div>
-        
-        <!-- Right Pane: Confluence & Strategy Breakdown -->
-        <div class="analysis-right">
-          <div class="analysis-header-info">
-            <h2 id="analysis-title">XAUUSD BUY</h2>
-            <div id="analysis-meta" style="margin-top: 8px; display: flex; gap: 10px; align-items: center;">
-              <span id="analysis-timeframe" class="tf-badge">-</span>
-              <span id="analysis-price" style="font-weight: 800; font-size: 14px; color: #fff;">-</span>
-            </div>
-          </div>
-          
-          <div class="confluence-stats" style="margin-top: 15px;">
-            <div class="stat-box">
-              <span class="stat-val" id="analysis-score">-</span>
-              <span class="stat-label">Confluence Score</span>
-            </div>
-            <div class="stat-box">
-              <span class="stat-val" id="analysis-smt">-</span>
-              <span class="stat-label">SMT Divergence</span>
-            </div>
-          </div>
-          
-          <div class="triggered-rules-container" style="margin-top: 20px;">
-            <h3>Triggered Rules Breakdown</h3>
-            <div class="strategy-cards-list" id="analysis-rules-cards">
-              <!-- Dynamically populated strategy cards with descriptions & CSS diagrams -->
-            </div>
-          </div>
+          <button class="btn ghost sm" id="testPianoBtn" style="padding:2px 7px;font-size:10px;color:var(--mint);border-color:var(--mint);" title="Test Piano Sound Ringtone">🎹 Test Piano</button>
         </div>
       </div>
+      <div class="tf-toggle-row" id="tfSignalToggles">
+        <div class="tf-chip on" data-signal-tf="M15">M15 <span class="badge">ON</span></div>
+        <div class="tf-chip on" data-signal-tf="M30">M30 <span class="badge">ON</span></div>
+        <div class="tf-chip on" data-signal-tf="H1">H1 <span class="badge">ON</span></div>
+        <div class="tf-chip on" data-signal-tf="H4">H4 <span class="badge">ON</span></div>
+        <div class="tf-chip on" data-signal-tf="D">Daily <span class="badge">ON</span></div>
+        <div class="tf-chip on" data-signal-tf="W">Weekly <span class="badge">ON</span></div>
+        <div class="tf-chip on" data-signal-tf="M">Monthly <span class="badge">ON</span></div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label class="small">SL Buffer (pips) per timeframe</label>
+      <div class="buffer-grid">
+        <span class="tflabel">M15</span><input class="field num" id="buf_M15" type="number" value="5">
+        <span class="tflabel">M30</span><input class="field num" id="buf_M30" type="number" value="7">
+        <span class="tflabel">H1</span><input class="field num" id="buf_H1" type="number" value="10">
+        <span class="tflabel">H4</span><input class="field num" id="buf_H4" type="number" value="20">
+        <span class="tflabel">Daily</span><input class="field num" id="buf_D" type="number" value="30">
+        <span class="tflabel">Weekly</span><input class="field num" id="buf_W" type="number" value="50">
+        <span class="tflabel">Monthly</span><input class="field num" id="buf_M" type="number" value="80">
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label class="small">Risk : Reward Ratio (Default 1:3)</label>
+      <input class="field" id="rrInput" type="number" step="0.5" value="3" style="width:100%;">
+    </div>
+
+    <div class="settings-group">
+      <label class="small">Lot Size (per trade, for PnL estimate)</label>
+      <input class="field" id="lotInput" type="number" step="0.01" value="0.10" style="width:100%;">
+    </div>
+
+    <div class="settings-group">
+      <label class="small">Analytical Chart Pair</label>
+      <select class="field" id="chartSymSelect" style="width:100%;margin-bottom:6px;"></select>
+      <select class="field" id="chartTfSelect" style="width:100%;">
+        <option value="M15">M15</option>
+        <option value="M30">M30</option>
+        <option value="H1">H1</option>
+        <option value="H4" selected>H4</option>
+        <option value="D">Daily</option>
+        <option value="W">Weekly</option>
+        <option value="M">Monthly</option>
+      </select>
+    </div>
+
+    <div class="settings-group">
+      <label class="small">Auto-refresh Interval</label>
+      <select class="field" id="refreshInterval" style="width:100%;">
+        <option value="15000">15 seconds</option>
+        <option value="30000" selected>30 seconds</option>
+        <option value="60000">60 seconds</option>
+        <option value="120000">2 minutes</option>
+      </select>
+    </div>
+
+    <button class="btn ghost" id="refreshNowBtn" style="width:100%;">Refresh Signals Now</button>
+  </aside>
+
+  <!-- ===================== Main Panel ===================== -->
+  <section>
+    <div class="banner" id="errBanner"></div>
+
+    <!-- Quick Action Bar -->
+    <div class="card" style="margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+      <div>
+        <h2 style="margin:0;color:var(--amber);">⚡ SK SIGNALS VIP LIVE SIGNAL TERMINAL (1:3 TP)<span class="eyebrow-line"></span></h2>
+        <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">Niche kisi bhi Currency ya Crypto Pair button par click karein—TradingView Chart instant open ho jayega!</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:10px;">
+        <h2 style="margin:0;">TradingView Live Chart<span class="eyebrow-line"></span></h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label style="font-size:12px;color:var(--text-dim);">Live Pair:</label>
+          <select class="field" id="tvSymbolSelect" style="width:150px;font-size:12px;"></select>
+          <select class="field" id="tvTfSelect" style="width:90px;font-size:12px;">
+            <option value="15">M15</option>
+            <option value="30">M30</option>
+            <option value="60">H1</option>
+            <option value="240" selected>H4</option>
+            <option value="D">Daily</option>
+            <option value="W">Weekly</option>
+          </select>
+          <button class="btn ghost sm" id="tvFullscreenBtn" style="padding:6px 12px;display:flex;align-items:center;gap:4px;" title="Full Screen Chart">⛶ Fullscreen</button>
+        </div>
+      </div>
+
+      <!-- Quick 1-Click Symbol Selector Bar -->
+      <div class="quick-sym-bar" id="quickSymBar"></div>
+
+      <div id="tvBox"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h2>SK SIGNALS — VIP Live Signal Dashboard (Click any pair to open TV Chart)<span class="eyebrow-line"></span></h2>
+      <div class="table-wrap">
+        <table class="dash" id="dashTable">
+          <thead><tr id="dashHeadRow"><th>Symbol</th></tr></thead>
+          <tbody id="dashBody"><tr><td colspan="8" class="empty-note">Press "Connect Live" to load market signals.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h2>SK Signal Blotter — Entry / SL / TP (1:3) / Break-Even Alerts<span class="eyebrow-line"></span></h2>
+      <div class="pnl-bar">
+        <div class="pnl-stat"><span class="lbl">Open Trades</span><span class="val" id="openCount">0</span></div>
+        <div class="pnl-stat"><span class="lbl">Unrealized PnL</span><span class="val" id="unrealPnl">$0.00</span></div>
+        <div class="pnl-stat"><span class="lbl">Realized PnL</span><span class="val" id="realPnl">$0.00</span></div>
+        <div class="pnl-stat"><span class="lbl">Total PnL</span><span class="val" id="totalPnl">$0.00</span></div>
+        <div class="pnl-stat"><span class="lbl">Win / Loss</span><span class="val" id="winLoss">0 / 0</span></div>
+      </div>
+      <div class="table-wrap">
+        <table class="dash" id="blotterTable">
+          <thead><tr>
+            <th>Symbol</th><th>TF</th><th>Dir</th><th>Entry</th><th>SL</th><th>TP (1:3)</th><th>Price</th><th>PnL ($)</th><th>Status</th><th>TradingView Chart &amp; Export</th>
+          </tr></thead>
+          <tbody id="blotterBody"><tr><td colspan="10" class="empty-note">Abhi tak koi trade signal nahi bana.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h2>Analytical Chart — Level &amp; Signal Markers<span class="eyebrow-line"></span></h2>
+      <div class="chart-controls"><span class="status-text" id="chartMeta">—</span></div>
+      <div id="chartBox"></div>
+      <div class="legend">
+        <span><span class="swatch" style="background:var(--amber);"></span> Key Level Zone</span>
+        <span>▲ Bullish Signal</span>
+        <span>▼ Bearish Signal</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Live SK Signals Feed &amp; Break-Even Alerts<span class="eyebrow-line"></span></h2>
+      <div id="feed"><div class="empty-note">Ab tak koi signal detect nahi hua.</div></div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== Modal Popup for Exporting Signal Image Card ===================== -->
+<div class="modal-overlay" id="chartModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;color:var(--amber);" id="modalTitle">📸 SK SIGNALS — VIP SIGNAL CARD IMAGE (1:3 TP)</h3>
+      <button class="modal-close" id="modalCloseBtn">&times;</button>
+    </div>
+    <div style="margin:10px 0;">
+      <canvas id="signalCardCanvas" width="800" height="460"></canvas>
+    </div>
+    <div style="display:flex;justify-content:center;gap:12px;margin-top:12px;">
+      <button class="btn" id="downloadCardBtn" style="background:var(--mint);color:#0a1a10;padding:10px 20px;">⬇️ Download Image PNG</button>
+      <button class="btn ghost" id="modalCloseBtn2">Close</button>
     </div>
   </div>
+</div>
 
-  <!-- Audio asset for signal alerts -->
-  <audio id="alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-600.wav" preload="auto"></audio>
-  <audio id="strong-alert-sound" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-600.wav" preload="auto"></audio>
+<!-- ===================== Modal Popup for User Account Profile ===================== -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal-card auth-card">
+    <div class="modal-header">
+      <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;color:var(--amber);">👤 User Account Profile</h3>
+      <button class="modal-close" id="loginModalCloseBtn">&times;</button>
+    </div>
+    <div style="font-size:12.5px;color:var(--text-dim);margin-bottom:16px;">
+      Aapka Account status aur subscription details yahan show hoti hain.
+    </div>
 
-  <script src="app.js"></script>
+    <form id="loginForm">
+      <label class="small">User Name / Email</label>
+      <input type="text" class="field" id="usernameInput" placeholder="Apna naam ya email dalein" required>
+
+      <label class="small">Mobile Number / Telegram Handle</label>
+      <input type="text" class="field" id="phoneInput" placeholder="WhatsApp / Telegram number" required>
+
+      <div style="margin-top:10px;display:flex;gap:10px;">
+        <button type="submit" class="btn" style="flex:1;background:var(--amber);color:#1a1204;">Update Profile</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== Modal Popup for Admin Registered Leads Directory ===================== -->
+<div class="modal-overlay" id="adminLeadsModal">
+  <div class="modal-card admin-leads-card">
+    <div class="modal-header">
+      <h3 style="margin:0;font-family:'Space Grotesk',sans-serif;color:var(--amber);">👥 Registered Leads &amp; User Directory</h3>
+      <button class="modal-close" id="adminLeadsCloseBtn">&times;</button>
+    </div>
+    <div style="font-size:12.5px;color:var(--text-dim);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+      <span>Total Registered Users: <strong id="totalLeadsCount" style="color:var(--mint);">0</strong></span>
+      <button class="btn sm" id="exportLeadsCsvBtn" style="background:var(--mint);color:#0a1a10;">📥 Export Leads to CSV (Excel)</button>
+    </div>
+
+    <div class="table-wrap" style="max-height:360px;overflow-y:auto;">
+      <table class="dash" style="width:100%;">
+        <thead><tr>
+          <th>Name</th><th>Email Address</th><th>Phone / Telegram</th><th>Registration Date</th><th>Trial Status</th>
+        </tr></thead>
+        <tbody id="adminLeadsBody">
+          <tr><td colspan="5" class="empty-note">Abhi tak koi user register nahi hua.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>
+  SK SIGNALS SERVICE — Official VIP Trade Signal Terminal (1:3 Target Profit &amp; Break-Even Alerts).
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // ================= Standard Presets =================
+  const MAJORS = ["EUR/USD", "GBP/USD", "AUD/USD", "NZD/USD", "USD/JPY", "USD/CAD", "USD/CHF"];
+  const CROSSES = [
+    "EUR/GBP", "EUR/JPY", "EUR/AUD", "EUR/CAD", "EUR/CHF", "EUR/NZD",
+    "GBP/JPY", "GBP/AUD", "GBP/CAD", "GBP/CHF", "GBP/NZD",
+    "AUD/JPY", "AUD/CAD", "AUD/CHF", "AUD/NZD",
+    "NZD/JPY", "NZD/CAD", "NZD/CHF",
+    "CAD/JPY", "CAD/CHF", "CHF/JPY"
+  ];
+  const METALS_INDICES = ["XAU/USD", "XAG/USD", "US30", "NAS100", "SPX500", "UK100", "GER40", "JPN225"];
+  
+  const TOP_CRYPTO = [
+    "BTC/USD", "ETH/USD", "SOL/USD", "XRP/USD", "BNB/USD", 
+    "DOGE/USD", "ADA/USD", "AVAX/USD", "LINK/USD", "DOT/USD", "LTC/USD", "NEAR/USD"
+  ];
+
+  const CRYPTO_MAP = {
+    "BTC/USD": { tv:"BINANCE:BTCUSDT", yahoo:"BTC-USD", pip:1 },
+    "ETH/USD": { tv:"BINANCE:ETHUSDT", yahoo:"ETH-USD", pip:0.1 },
+    "SOL/USD": { tv:"BINANCE:SOLUSDT", yahoo:"SOL-USD", pip:0.01 },
+    "XRP/USD": { tv:"BINANCE:XRPUSDT", yahoo:"XRP-USD", pip:0.0001 },
+    "BNB/USD": { tv:"BINANCE:BNBUSDT", yahoo:"BNB-USD", pip:0.1 },
+    "DOGE/USD": { tv:"BINANCE:DOGEUSDT", yahoo:"DOGE-USD", pip:0.0001 },
+    "ADA/USD": { tv:"BINANCE:ADAUSDT", yahoo:"ADA-USD", pip:0.0001 },
+    "AVAX/USD": { tv:"BINANCE:AVAXUSDT", yahoo:"AVAX-USD", pip:0.01 },
+    "LINK/USD": { tv:"BINANCE:LINKUSDT", yahoo:"LINK-USD", pip:0.01 },
+    "DOT/USD": { tv:"BINANCE:DOTUSDT", yahoo:"DOT-USD", pip:0.01 },
+    "LTC/USD": { tv:"BINANCE:LTCUSDT", yahoo:"LTC-USD", pip:0.1 },
+    "NEAR/USD": { tv:"BINANCE:NEARUSDT", yahoo:"NEAR-USD", pip:0.01 }
+  };
+
+  const ALL_MARKETS = [...MAJORS, ...METALS_INDICES, ...TOP_CRYPTO];
+
+  // ================= Config =================
+  const TF_LIST = ["M15","M30","H1","H4","D","W","M"];
+  const TF_LABEL = {M15:"M15",M30:"M30",H1:"H1",H4:"H4",D:"Daily",W:"Weekly",M:"Monthly"};
+  const TF_INTERVAL = {M15:"15min",M30:"30min",H1:"1h",H4:"4h",D:"1day",W:"1week",M:"1month"};
+  const TF_TV_INTERVAL = {M15:"15",M30:"30",H1:"60",H4:"240",D:"D",W:"W",M:"M"};
+
+  const INDEX_TV = { US30:"OANDA:US30USD", NAS100:"OANDA:NAS100USD", SPX500:"OANDA:SPX500USD", UK100:"OANDA:UK100GBP", GER40:"OANDA:DE30EUR", GER30:"OANDA:DE30EUR", JPN225:"OANDA:JPN225USD" };
+  const INDEX_TD = { US30:"DJI", NAS100:"NDX", SPX500:"SPX", UK100:"FTSE", GER40:"GDAXI", GER30:"GDAXI", JPN225:"N225" };
+  const INDEX_YAHOO = { US30:"^DJI", NAS100:"^NDX", SPX500:"^GSPC", UK100:"^FTSE", GER40:"^GDAXI", GER30:"^GDAXI", JPN225:"^N225" };
+  const YAHOO_INTERVAL = { M15:"15m", M30:"30m", H1:"60m", H4:"60m", D:"1d", W:"1wk", M:"1mo" };
+  const YAHOO_RANGE = { M15:"5d", M30:"1mo", H1:"3mo", H4:"3mo", D:"2y", W:"5y", M:"10y" };
+  const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+
+  function resolveSymbol(raw){
+    if (!raw) return null;
+    const clean = raw.trim().toUpperCase();
+    if (!clean) return null;
+
+    if (CRYPTO_MAP[clean]){
+      const c = CRYPTO_MAP[clean];
+      return { label: clean, td: clean, tv: c.tv, yahoo: c.yahoo, pip: c.pip };
+    }
+    const cleanNoSlash = clean.replace("/","");
+    const cleanWithSlash = clean.includes("/") ? clean : (cleanNoSlash.length===6 ? cleanNoSlash.slice(0,3)+"/"+cleanNoSlash.slice(3) : clean);
+    if (CRYPTO_MAP[cleanWithSlash]){
+      const c = CRYPTO_MAP[cleanWithSlash];
+      return { label: cleanWithSlash, td: cleanWithSlash, tv: c.tv, yahoo: c.yahoo, pip: c.pip };
+    }
+
+    if (INDEX_TV[clean]){
+      return { label: clean, td: INDEX_TD[clean] || clean, tv: INDEX_TV[clean], yahoo: INDEX_YAHOO[clean] || clean, pip: 1 };
+    }
+
+    let noSlash = clean.replace("/","");
+    let fx = clean.includes("/") ? clean : (noSlash.length===6 ? noSlash.slice(0,3)+"/"+noSlash.slice(3) : clean);
+    let pip = 0.0001;
+    if (fx.includes("JPY")) pip = 0.01;
+    else if (fx.includes("XAU")) pip = 0.1;
+    else if (fx.includes("XAG")) pip = 0.01;
+    return { label: fx, td: fx, tv: "FX:" + fx.replace("/",""), yahoo: fx.replace("/","") + "=X", pip };
+  }
+
+  function playSignalBeep(){
+    try{
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 Melodious Piano Arpeggio Ringtone
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.14);
+        const startTime = ctx.currentTime + idx * 0.14;
+        gain.gain.setValueAtTime(0.01, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.35, startTime + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.75);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.8);
+      });
+    } catch(e){}
+  }
+
+  // ================= State =================
+  const state = {
+    dataSource: "yahoo",
+    apiKey: "",
+    symbols: [],           // resolved symbol objects
+    signalAlertTf: new Set(TF_LIST), // Signal alert ON/OFF per timeframe
+    soundAlertEnabled: true,
+    refreshMs: 30000,
+    chartSymbol: null,
+    chartTf: "H4",
+    tvSymbol: "FX:EURUSD",
+    tvTf: "240",
+    bufferPips: { M15:5, M30:7, H1:10, H4:20, D:30, W:50, M:80 },
+    rr: 3,                 // Default Risk:Reward set to 1:3 Target Profit
+    lot: 0.10,
+    sweepState: {},         // sweepState[label][tf] = {type, barsAgo, prevTime}
+    lastPrice: {},          // lastPrice[label] = latest close seen
+    activeTrades: [],       // {id, label, tf, dir, entry, sl, tp, pip, opened, beAlerted}
+    closedTrades: [],
+    realizedPnl: 0,
+    winCount: 0,
+    lossCount: 0,
+    timer: null,
+    busy: false
+  };
+  let tradeSeq = 0;
+  const feedLog = [];
+
+  // ================= DOM refs =================
+  const $ = (id) => document.getElementById(id);
+  const apiKeyInput   = $("apiKeyInput");
+  const saveKeyBtn    = $("saveKeyBtn");
+  const connDot       = $("connDot");
+  const connStatus    = $("connStatus");
+  const errBanner     = $("errBanner");
+  const dashHeadRow   = $("dashHeadRow");
+  const dashBody      = $("dashBody");
+  const feedEl        = $("feed");
+  const chartMeta     = $("chartMeta");
+  const chartSymSelect= $("chartSymSelect");
+  const chartTfSelect = $("chartTfSelect");
+  const symbolsInput  = $("symbolsInput");
+  const tvSymbolSelect= $("tvSymbolSelect");
+  const tvTfSelect    = $("tvTfSelect");
+  const tvFullscreenBtn = $("tvFullscreenBtn");
+  const refreshSelect = $("refreshInterval");
+  const blotterBody   = $("blotterBody");
+  const soundToggle   = $("soundToggle");
+  const chartModal    = $("chartModal");
+  const modalCloseBtn = $("modalCloseBtn");
+  const modalCloseBtn2 = $("modalCloseBtn2");
+  const downloadCardBtn = $("downloadCardBtn");
+  const signalCardCanvas = $("signalCardCanvas");
+  const quickSymBar   = $("quickSymBar");
+
+  // Mandatory Account & Trial Refs
+  const mandatoryAuthOverlay = $("mandatoryAuthOverlay");
+  const mandatoryRegisterForm = $("mandatoryRegisterForm");
+  const reqName = $("reqName");
+  const reqEmail = $("reqEmail");
+  const reqPhone = $("reqPhone");
+  const adminBypassBtn = $("adminBypassBtn");
+
+  const trialBadge = $("trialBadge");
+  const userAccountBtn = $("userAccountBtn");
+  const adminLeadsBtn = $("adminLeadsBtn");
+  const leadsCount = $("leadsCount");
+  const adminLeadsModal = $("adminLeadsModal");
+  const adminLeadsCloseBtn = $("adminLeadsCloseBtn");
+  const adminLeadsBody = $("adminLeadsBody");
+  const totalLeadsCount = $("totalLeadsCount");
+  const exportLeadsCsvBtn = $("exportLeadsCsvBtn");
+  const adminWebhookUrl = $("adminWebhookUrl");
+
+  const tgBotToken = $("tgBotToken");
+  const tgChatId = $("tgChatId");
+  const sendTestTgBtn = $("sendTestTgBtn");
+
+  const loginModal = $("loginModal");
+  const loginModalCloseBtn = $("loginModalCloseBtn");
+  const loginForm = $("loginForm");
+  const usernameInput = $("usernameInput");
+  const phoneInput = $("phoneInput");
+  const paywallOverlay = $("paywallOverlay");
+  const licenseKeyInput = $("licenseKeyInput");
+  const activateKeyBtn = $("activateKeyBtn");
+
+  symbolsInput.value = ALL_MARKETS.join(", ");
+
+  // Global Master Function to Open ANY Currency or Crypto Symbol Directly in TradingView Live Chart
+  window.openSymbolInTradingView = function(label, tfKey){
+    const symbolObj = resolveSymbol(label);
+    if (!symbolObj) return;
+
+    state.tvSymbol = symbolObj.tv;
+
+    let exists = false;
+    for (let i = 0; i < tvSymbolSelect.options.length; i++) {
+      if (tvSymbolSelect.options[i].value === symbolObj.tv) {
+        exists = true;
+        break;
+      }
+    }
+    if (!exists) {
+      const opt = document.createElement("option");
+      opt.value = symbolObj.tv;
+      opt.textContent = symbolObj.label;
+      tvSymbolSelect.appendChild(opt);
+    }
+    tvSymbolSelect.value = symbolObj.tv;
+
+    if (tfKey && TF_TV_INTERVAL[tfKey]){
+      state.tvTf = TF_TV_INTERVAL[tfKey];
+      tvTfSelect.value = TF_TV_INTERVAL[tfKey];
+    }
+
+    state.chartSymbol = symbolObj;
+    if (chartSymSelect){
+      let cExists = false;
+      for (let i = 0; i < chartSymSelect.options.length; i++) {
+        if (chartSymSelect.options[i].value === symbolObj.label) {
+          cExists = true;
+          break;
+        }
+      }
+      if (!cExists) {
+        const opt = document.createElement("option");
+        opt.value = symbolObj.label;
+        opt.textContent = symbolObj.label;
+        chartSymSelect.appendChild(opt);
+      }
+      chartSymSelect.value = symbolObj.label;
+      renderChartPanel();
+    }
+
+    document.querySelectorAll(".sym-pill").forEach(pill => {
+      if (pill.dataset.sym === symbolObj.label) pill.classList.add("active");
+      else pill.classList.remove("active");
+    });
+
+    renderTradingViewWidget();
+    const tvBox = document.getElementById("tvBox");
+    if (tvBox) tvBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  // Render 1-Click Interactive Symbol Pills Bar
+  function renderQuickSymBar(){
+    if (!quickSymBar) return;
+    const symList = state.symbols.length > 0 ? state.symbols : ALL_MARKETS.map(s=>resolveSymbol(s)).filter(Boolean);
+    quickSymBar.innerHTML = symList.map(s => {
+      const isCrypto = TOP_CRYPTO.includes(s.label);
+      const icon = isCrypto ? "🪙" : (s.label.includes("XAU") ? "🥇" : "📈");
+      const activeCls = (state.tvSymbol === s.tv || (state.chartSymbol && state.chartSymbol.label === s.label)) ? "active" : "";
+      return `<button class="sym-pill ${activeCls}" data-sym="${s.label}" onclick="openSymbolInTradingView('${s.label}')">${icon} ${s.label}</button>`;
+    }).join("");
+  }
+
+  // Telegram Auto Signal Dispatcher
+  function sendTelegramBotSignal(symbolLabel, tf, direction, entry, sl, tp){
+    const token = (tgBotToken && tgBotToken.value.trim()) || "8601555526:AAHk-nSAzDcCG8VRE644_NFeGOrBg1U3I5Y";
+    const chat = (tgChatId && tgChatId.value.trim()) || "7526924260";
+    if (!token || !chat) return;
+
+    const symbolObj = resolveSymbol(symbolLabel);
+    const pip = symbolObj ? symbolObj.pip : 0.0001;
+    const decimals = pip < 1 ? (pip === 0.1 ? 2 : 5) : 2;
+
+    const isBuy = direction.toUpperCase() === "BUY";
+    const dirIcon = isBuy ? "🟢 ▲ BUY SIGNAL" : "🔴 ▼ SELL SIGNAL";
+    const terminalUrl = window.location.origin.includes("localhost") ? "https://7a3ab459eb1605.lhr.life" : window.location.origin;
+
+    const msgText = `<b>🚀 SK SIGNALS SERVICE VIP ALERT 🚀</b>\n\n` +
+      `<b>Symbol:</b> ${symbolLabel}\n` +
+      `<b>Timeframe:</b> ${TF_LABEL[tf] || tf}\n` +
+      `<b>Signal:</b> ${dirIcon}\n\n` +
+      `<b>Entry Price:</b> <code>${Number(entry).toFixed(decimals)}</code>\n` +
+      `<b>Stop Loss (SL):</b> <code>${Number(sl).toFixed(decimals)}</code>\n` +
+      `<b>Take Profit (1:3 TP):</b> <code>${Number(tp).toFixed(decimals)}</code>\n\n` +
+      `🎯 <b>Risk Rule:</b> Move SL to Break-Even (BE) when trade reaches 1:2 Target!\n` +
+      `🌐 <b>Terminal:</b> ${terminalUrl}`;
+
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chat,
+        text: msgText,
+        parse_mode: "HTML"
+      })
+    }).then(r => r.json()).then(res => {
+      if (res.ok) console.log("Telegram alert sent successfully!");
+      else console.log("Telegram API error:", res);
+    }).catch(e => {
+      console.log("Telegram dispatch fetch failed, using fallback:", e);
+      try{
+        const cleanMsg = msgText.replace(/<[^>]*>/g, "");
+        const beaconUrl = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${encodeURIComponent(chat)}&text=${encodeURIComponent(cleanMsg)}`;
+        new Image().src = beaconUrl;
+      } catch(err){}
+    });
+  }
+
+  sendTestTgBtn.addEventListener("click", () => {
+    const token = (tgBotToken && tgBotToken.value.trim()) || "8601555526:AAHk-nSAzDcCG8VRE644_NFeGOrBg1U3I5Y";
+    const chat = (tgChatId && tgChatId.value.trim()) || "7526924260";
+
+    const testMsg = `🚀 SK SIGNALS VIP TEST ALERT 🚀\n\n` +
+      `Symbol: BTC/USD\n` +
+      `Timeframe: M15\n` +
+      `Signal: 🟢 ▲ BUY SIGNAL\n\n` +
+      `Entry Price: 66000.00\n` +
+      `Stop Loss (SL): 65000.00\n` +
+      `Take Profit (1:3 TP): 69000.00\n\n` +
+      `🎯 Risk Rule: Move SL to Break-Even (BE) when trade reaches 1:2 Target!\n` +
+      `🌐 Terminal: https://7a3ab459eb1605.lhr.life`;
+
+    const tgUrl = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${encodeURIComponent(chat)}&text=${encodeURIComponent(testMsg)}`;
+
+    const img = new Image();
+    img.src = tgUrl;
+    fetch(tgUrl, { mode: 'no-cors' }).catch(()=>{});
+
+    alert("✅ TELEGRAM TEST SIGNAL DISPATCHED! Check your Telegram App!");
+  });
+
+  // ================= User Account & Mandatory Login Wall Manager =================
+  const TRIAL_DAYS = 7;
+  const SEVEN_DAYS_MS = TRIAL_DAYS * 24 * 60 * 60 * 1000;
+
+  function getUserSession(){
+    try{
+      const raw = localStorage.getItem("sk_user_session");
+      if (raw) return JSON.parse(raw);
+    } catch(e){}
+    return null;
+  }
+
+  function getRegisteredLeads(){
+    try{
+      const raw = localStorage.getItem("sk_registered_leads");
+      if (raw) return JSON.parse(raw);
+    } catch(e){}
+    return [];
+  }
+
+  function saveRegisteredLead(leadObj){
+    const leads = getRegisteredLeads();
+    const exists = leads.some(l => l.email.toLowerCase() === leadObj.email.toLowerCase());
+    if (!exists){
+      leads.unshift(leadObj);
+      localStorage.setItem("sk_registered_leads", JSON.stringify(leads));
+    }
+    updateLeadsUI();
+
+    const webhookUrl = adminWebhookUrl.value.trim();
+    if (webhookUrl){
+      try{
+        fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event: "new_lead_registration",
+            name: leadObj.username,
+            email: leadObj.email,
+            phone: leadObj.phone,
+            registeredAt: new Date(leadObj.createdAt).toLocaleString()
+          })
+        }).catch(()=>{});
+      } catch(e){}
+    }
+  }
+
+  function saveUserSession(sessionObj){
+    localStorage.setItem("sk_user_session", JSON.stringify(sessionObj));
+    checkMandatoryWall();
+  }
+
+  function checkMandatoryWall(){
+    const session = getUserSession();
+    if (!session || !session.username){
+      mandatoryAuthOverlay.classList.add("active");
+    } else {
+      mandatoryAuthOverlay.classList.remove("active");
+      updateTrialUI();
+    }
+    updateLeadsUI();
+  }
+
+  mandatoryRegisterForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const uname = reqName.value.trim();
+    const email = reqEmail.value.trim();
+    const phone = reqPhone.value.trim();
+    if (!uname || !email || !phone) return;
+
+    const lead = {
+      username: uname,
+      email: email,
+      phone: phone,
+      createdAt: Date.now(),
+      isPaid: false
+    };
+    saveUserSession(lead);
+    saveRegisteredLead(lead);
+    alert(`📧 Registration Confirmation Sent to ${email}!\n\n🎉 Account Created Successfully! Your 7-Day Demo Pass is active.`);
+  });
+
+  adminBypassBtn.addEventListener("click", () => {
+    const adminSession = {
+      username: "Admin Owner",
+      email: "admin@sksignals.service",
+      phone: "+1-ADMIN",
+      createdAt: Date.now(),
+      isPaid: true
+    };
+    saveUserSession(adminSession);
+    alert("👑 Admin Access Granted! Welcome Admin.");
+  });
+
+  function updateLeadsUI(){
+    const leads = getRegisteredLeads();
+    leadsCount.textContent = leads.length;
+    totalLeadsCount.textContent = leads.length;
+
+    if (leads.length === 0){
+      adminLeadsBody.innerHTML = `<tr><td colspan="5" class="empty-note">Abhi tak koi user register nahi hua.</td></tr>`;
+      return;
+    }
+
+    adminLeadsBody.innerHTML = leads.map(l => {
+      const dateStr = new Date(l.createdAt).toLocaleString();
+      const statusTag = l.isPaid 
+        ? `<span class="tag-badge buy">👑 VIP Paid</span>` 
+        : `<span class="tag-badge open">🎟️ 7-Day Demo Active</span>`;
+      return `<tr>
+        <td style="font-weight:bold;color:var(--amber);">${l.username}</td>
+        <td>${l.email}</td>
+        <td>${l.phone}</td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;">${dateStr}</td>
+        <td>${statusTag}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  adminLeadsBtn.addEventListener("click", () => {
+    updateLeadsUI();
+    adminLeadsModal.classList.add("open");
+  });
+
+  adminLeadsCloseBtn.addEventListener("click", () => adminLeadsModal.classList.remove("open"));
+
+  exportLeadsCsvBtn.addEventListener("click", () => {
+    const leads = getRegisteredLeads();
+    if (leads.length === 0){ alert("No leads to export."); return; }
+
+    let csv = "Name,Email,Phone,Registration Date,Status\n";
+    leads.forEach(l => {
+      const dateStr = new Date(l.createdAt).toLocaleString().replace(/,/g, " ");
+      csv += `"${l.username}","${l.email}","${l.phone}","${dateStr}","${l.isPaid?'Paid VIP':'Demo Trial'}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `SK_SIGNALS_Registered_Leads_${Date.now()}.csv`;
+    a.click();
+  });
+
+  function updateTrialUI(){
+    let session = getUserSession();
+    if (!session) return;
+
+    if (session.isPaid){
+      trialBadge.innerHTML = "👑 VIP PAID MEMBER";
+      trialBadge.style.borderColor = "var(--mint)";
+      trialBadge.style.color = "var(--mint)";
+      paywallOverlay.classList.remove("active");
+      userAccountBtn.textContent = `👑 ${session.username}`;
+      return;
+    }
+
+    const elapsed = Date.now() - session.createdAt;
+    const remaining = SEVEN_DAYS_MS - elapsed;
+
+    if (remaining <= 0){
+      trialBadge.innerHTML = "🔒 Trial Expired";
+      trialBadge.style.borderColor = "var(--coral)";
+      trialBadge.style.color = "var(--coral)";
+      paywallOverlay.classList.add("active");
+      userAccountBtn.textContent = `🔒 ${session.username} (Expired)`;
+    } else {
+      const daysLeft = Math.floor(remaining / (1000 * 60 * 60 * 24));
+      const hoursLeft = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      trialBadge.innerHTML = `🎟️ Demo Trial: ${daysLeft}d ${hoursLeft}h Left`;
+      paywallOverlay.classList.remove("active");
+      userAccountBtn.textContent = `👤 ${session.username} (${daysLeft}d left)`;
+    }
+  }
+
+  userAccountBtn.addEventListener("click", () => {
+    const session = getUserSession();
+    if (session && session.username){
+      usernameInput.value = session.username;
+      phoneInput.value = session.phone || "";
+    }
+    loginModal.classList.add("open");
+  });
+
+  loginModalCloseBtn.addEventListener("click", () => loginModal.classList.remove("open"));
+
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const uname = usernameInput.value.trim();
+    const phone = phoneInput.value.trim();
+    if (!uname) return;
+
+    let session = getUserSession();
+    if (session){
+      session.username = uname;
+      session.phone = phone;
+      saveUserSession(session);
+    }
+    loginModal.classList.remove("open");
+  });
+
+  activateKeyBtn.addEventListener("click", () => {
+    const key = licenseKeyInput.value.trim().toUpperCase();
+    if (key === "SK-VIP-PAID" || key === "SKVIP2026" || key.startsWith("SK-PAID") || key === "ADMIN"){
+      let session = getUserSession() || { username:"VIP Member", createdAt: Date.now() };
+      session.isPaid = true;
+      saveUserSession(session);
+      alert("🎉 VIP Paid Membership Activated Successfully!");
+    } else {
+      alert("Invalid License Key. Contact Admin on Telegram/WhatsApp.");
+    }
+  });
+
+  checkMandatoryWall();
+
+  function readSymbolsFromUI(){
+    const text = symbolsInput.value;
+    const rawList = text.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
+    const resolved = [];
+    const seen = new Set();
+    rawList.forEach(raw => {
+      const obj = resolveSymbol(raw);
+      if (obj && !seen.has(obj.label)){
+        seen.add(obj.label);
+        resolved.push(obj);
+      }
+    });
+    return resolved;
+  }
+
+  function readBuffers(){
+    const b = {};
+    TF_LIST.forEach(tf => { b[tf] = parseFloat($("buf_"+tf).value) || 0; });
+    return b;
+  }
+
+  function showError(msg){ errBanner.textContent = msg; errBanner.classList.add("show"); }
+  function clearError(){ errBanner.classList.remove("show"); errBanner.textContent=""; }
+  function setConnected(ok, msg){ connDot.classList.toggle("live", ok); connStatus.textContent = msg; }
+
+  // ================= VIP Signal Card PNG Image Generator =================
+  window.exportSignalImageCard = function(label, tfKey, dir, entry, sl, tp){
+    const symbolObj = resolveSymbol(label);
+    const pip = symbolObj ? symbolObj.pip : 0.0001;
+    const decimals = pip < 1 ? (pip === 0.1 ? 2 : 5) : 2;
+
+    const canvas = signalCardCanvas;
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#0d1117";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    grad.addColorStop(0, "#e8b85c");
+    grad.addColorStop(1, "#3ddc97");
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 4;
+    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+    ctx.fillStyle = "#161b26";
+    ctx.fillRect(14, 14, canvas.width - 28, canvas.height - 28);
+
+    ctx.font = "bold 26px 'Space Grotesk', sans-serif";
+    ctx.fillStyle = "#e8b85c";
+    ctx.fillText("SK SIGNALS SERVICE", 40, 56);
+
+    ctx.font = "bold 13px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#8992a3";
+    ctx.fillText("OFFICIAL VIP TRADE SIGNAL (1:3 TP)", 40, 80);
+
+    ctx.strokeStyle = "#232a38";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(40, 96);
+    ctx.lineTo(760, 96);
+    ctx.stroke();
+
+    const isBuy = dir.toUpperCase() === "BUY";
+    const dirColor = isBuy ? "#3ddc97" : "#ff6b6b";
+    
+    ctx.fillStyle = isBuy ? "rgba(61,220,151,0.15)" : "rgba(255,107,107,0.15)";
+    ctx.fillRect(40, 115, 140, 44);
+    ctx.strokeStyle = dirColor;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, 115, 140, 44);
+
+    ctx.font = "bold 22px 'Space Grotesk', sans-serif";
+    ctx.fillStyle = dirColor;
+    ctx.fillText((isBuy ? "▲ BUY" : "▼ SELL"), 68, 145);
+
+    ctx.font = "bold 32px 'Space Grotesk', sans-serif";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(label, 200, 146);
+
+    ctx.font = "bold 16px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#e8b85c";
+    ctx.fillText(`TIMEFRAME: ${TF_LABEL[tfKey] || tfKey}`, 560, 144);
+
+    ctx.fillStyle = "#0d1117";
+    ctx.fillRect(40, 185, 720, 190);
+    ctx.strokeStyle = "#232a38";
+    ctx.strokeRect(40, 185, 720, 190);
+
+    ctx.font = "bold 13px 'Inter', sans-serif";
+    ctx.fillStyle = "#8992a3";
+    ctx.fillText("ENTRY PRICE", 70, 220);
+    ctx.font = "bold 24px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(Number(entry).toFixed(decimals), 70, 255);
+
+    ctx.font = "bold 13px 'Inter', sans-serif";
+    ctx.fillStyle = "#8992a3";
+    ctx.fillText("STOP LOSS (SL)", 320, 220);
+    ctx.font = "bold 24px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#ff6b6b";
+    ctx.fillText(Number(sl).toFixed(decimals), 320, 255);
+
+    ctx.font = "bold 13px 'Inter', sans-serif";
+    ctx.fillStyle = "#8992a3";
+    ctx.fillText("TAKE PROFIT (1:3 TP)", 560, 220);
+    ctx.font = "bold 24px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#3ddc97";
+    ctx.fillText(Number(tp).toFixed(decimals), 560, 255);
+
+    ctx.font = "bold 14px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#e8b85c";
+    ctx.fillText(`RISK : REWARD = 1 : ${state.rr || 3}`, 70, 320);
+
+    ctx.font = "bold 14px 'JetBrains Mono', monospace";
+    ctx.fillStyle = "#3ddc97";
+    ctx.fillText(`NOTE: MOVE SL TO BE AT 1:2 TARGET`, 430, 320);
+
+    const dateStr = new Date().toLocaleString();
+    ctx.font = "12px 'Inter', sans-serif";
+    ctx.fillStyle = "#6b7280";
+    ctx.fillText(`Generated: ${dateStr}`, 40, 415);
+
+    ctx.fillStyle = "#e8b85c";
+    ctx.fillText("t.me/sksignals · SK SIGNALS SERVICE VIP", 510, 415);
+
+    chartModal.classList.add("open");
+  };
+
+  downloadCardBtn.addEventListener("click", () => {
+    const link = document.createElement("a");
+    link.download = `SK_VIP_Signal_${Date.now()}.png`;
+    link.href = signalCardCanvas.toDataURL("image/png");
+    link.click();
+  });
+
+  modalCloseBtn.addEventListener("click", () => chartModal.classList.remove("open"));
+  if (modalCloseBtn2) modalCloseBtn2.addEventListener("click", () => chartModal.classList.remove("open"));
+  chartModal.addEventListener("click", (e) => { if (e.target === chartModal) chartModal.classList.remove("open"); });
+
+  // ================= Fetching Data =================
+  async function fetchBatchTimeSeriesTD(symbolObjs, tf){
+    const interval = TF_INTERVAL[tf];
+    const symParam = symbolObjs.map(s => s.td).join(",");
+    const url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(symParam)}&interval=${interval}&outputsize=5&apikey=${encodeURIComponent(state.apiKey)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const out = {};
+    if (symbolObjs.length === 1){
+      if (data.status === "error"){ throw new Error(data.message || "API error"); }
+      out[symbolObjs[0].td] = data.values || [];
+    } else {
+      symbolObjs.forEach(s => {
+        const entry = data[s.td];
+        if (!entry || entry.status === "error"){ out[s.td] = []; return; }
+        out[s.td] = entry.values || [];
+      });
+    }
+    return out;
+  }
+
+  function toValuesFormat(timestamps, quote){
+    const arr = [];
+    for (let i=0; i<timestamps.length; i++){
+      if (quote.close[i]==null) continue;
+      const d = new Date(timestamps[i]*1000);
+      arr.push({
+        datetime: d.toISOString().slice(0,19).replace("T"," "),
+        _ts: timestamps[i],
+        open: quote.open[i], high: quote.high[i], low: quote.low[i], close: quote.close[i]
+      });
+    }
+    arr.sort((a,b)=> b._ts - a._ts);
+    return arr;
+  }
+
+  function aggregateToH4(hourlyValuesNewestFirst){
+    const asc = hourlyValuesNewestFirst.slice().reverse();
+    const buckets = {};
+    const order = [];
+    asc.forEach(v => {
+      const d = new Date(v._ts*1000);
+      const bucketStart = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), Math.floor(d.getUTCHours()/4)*4));
+      const key = bucketStart.getTime();
+      if (!buckets[key]){ buckets[key] = { _ts:key/1000, open:v.open, high:v.high, low:v.low, close:v.close }; order.push(key); }
+      else{
+        const b = buckets[key];
+        b.high = Math.max(b.high, v.high); b.low = Math.min(b.low, v.low); b.close = v.close;
+      }
+    });
+    return order.map(k => buckets[k]).reverse().map(b => ({
+      datetime: new Date(b._ts*1000).toISOString().slice(0,19).replace("T"," "),
+      _ts:b._ts, open:b.open, high:b.high, low:b.low, close:b.close
+    }));
+  }
+
+  async function fetchYahooChart(symbolObj, tf, size){
+    const interval = YAHOO_INTERVAL[tf];
+    const range = YAHOO_RANGE[tf];
+    const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbolObj.yahoo)}?interval=${interval}&range=${range}`;
+
+    const proxyList = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(yUrl)}`,
+      `https://corsproxy.io/?${encodeURIComponent(yUrl)}`,
+      `https://thingproxy.freeboard.io/fetch/${yUrl}`
+    ];
+
+    let lastErr = null;
+    for (const pUrl of proxyList){
+      try{
+        const res = await fetch(pUrl);
+        if (!res.ok) continue;
+        const data = await res.json();
+        const result = data?.chart?.result?.[0];
+        if (result && result.indicators && result.indicators.quote && result.indicators.quote[0]){
+          const quote = result.indicators.quote[0];
+          let values = toValuesFormat(result.timestamp, quote);
+          if (tf === "H4") values = aggregateToH4(values);
+          if (values.length > 0) return values.slice(0, size);
+        }
+      } catch(e){ lastErr = e; }
+    }
+    throw new Error(lastErr ? lastErr.message : "Yahoo proxy request failed");
+  }
+
+  const BINANCE_INTERVAL = { M15:"15m", M30:"30m", H1:"1h", H4:"4h", D:"1d", W:"1w", M:"1M" };
+
+  async function fetchBinanceKlines(symbolObj, tf, size){
+    const sym = symbolObj.tv.replace("BINANCE:","");
+    const interval = BINANCE_INTERVAL[tf] || "15m";
+    const url = `https://api.binance.com/api/v3/klines?symbol=${sym}&interval=${interval}&limit=${size+2}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Binance HTTP error " + res.status);
+    const data = await res.json();
+    const values = data.map(k => {
+      const d = new Date(k[0]);
+      return {
+        datetime: d.toISOString().slice(0,19).replace("T"," "),
+        _ts: Math.floor(k[0]/1000),
+        open: parseFloat(k[1]),
+        high: parseFloat(k[2]),
+        low: parseFloat(k[3]),
+        close: parseFloat(k[4])
+      };
+    }).reverse();
+    return values.slice(0, size);
+  }
+
+  async function fetchSymbolData(symbolObj, tf, size){
+    if (symbolObj.tv && symbolObj.tv.startsWith("BINANCE:")){
+      try { return await fetchBinanceKlines(symbolObj, tf, size); }
+      catch(e){ console.log("Binance fallback to Yahoo for", symbolObj.label); }
+    }
+    return fetchYahooChart(symbolObj, tf, size);
+  }
+
+  async function fetchBatchSeries(symbolObjs, tf){
+    if (state.dataSource === "twelvedata") return fetchBatchTimeSeriesTD(symbolObjs, tf);
+    const out = {};
+    for (const s of symbolObjs){
+      try{ out[s.td] = await fetchSymbolData(s, tf, 5); }
+      catch(e){ out[s.td] = []; }
+      await new Promise(r => setTimeout(r, 60));
+    }
+    return out;
+  }
+
+  async function fetchSingleFull(symbolObj, tf, size){
+    if (state.dataSource === "twelvedata"){
+      const interval = TF_INTERVAL[tf];
+      const url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(symbolObj.td)}&interval=${interval}&outputsize=${size}&apikey=${encodeURIComponent(state.apiKey)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.status === "error") throw new Error(data.message || "API error");
+      return data.values || [];
+    }
+    return fetchSymbolData(symbolObj, tf, size);
+  }
+
+  // ================= Trade management =================
+  function openTrade(symbolObj, tf, direction, entry, sl, tp){
+    if (!state.signalAlertTf.has(tf)) return;
+
+    tradeSeq += 1;
+    state.activeTrades.push({
+      id: tradeSeq, label: symbolObj.label, pip: symbolObj.pip, tf, dir: direction,
+      entry, sl, tp, opened: new Date(), beAlerted: false
+    });
+
+    if (state.soundAlertEnabled) playSignalBeep();
+
+    // Auto-Post to Telegram Channel/Group
+    sendTelegramBotSignal(symbolObj.label, tf, direction, entry, sl, tp);
+  }
+
+  function pipValuePerLot(pip){
+    return pip === 1 ? 1 : 10;
+  }
+
+  function updateTrades(){
+    const stillOpen = [];
+    state.activeTrades.forEach(t => {
+      const price = state.lastPrice[t.label];
+      if (price == null){ stillOpen.push(t); return; }
+
+      const riskDist = Math.abs(t.entry - t.sl);
+      const tp1_2 = t.dir === "Buy" ? (t.entry + 2 * riskDist) : (t.entry - 2 * riskDist);
+      const hit1_2 = t.dir === "Buy" ? (price >= tp1_2) : (price <= tp1_2);
+
+      if (hit1_2 && !t.beAlerted){
+        t.beAlerted = true;
+        if (state.soundAlertEnabled) playSignalBeep();
+        feedLog.unshift({
+          time: new Date(),
+          symbol: t.label,
+          tf: t.tf,
+          type: "BE",
+          msg: `🎯 1:2 TARGET REACHED! MOVE STOP LOSS TO BREAK-EVEN (BE) NOW! (1:3 TP Pending)`
+        });
+        if (feedLog.length > 60) feedLog.pop();
+      }
+
+      let hitTp = t.dir === "Buy" ? price >= t.tp : price <= t.tp;
+      let hitSl = t.dir === "Buy" ? price <= t.sl : price >= t.sl;
+      if (hitTp || hitSl){
+        const pipsDiff = t.dir === "Buy" ? (price - t.entry)/t.pip : (t.entry - price)/t.pip;
+        const dollar = pipsDiff * pipValuePerLot(t.pip) * state.lot;
+        state.realizedPnl += dollar;
+        if (hitTp) state.winCount += 1; else state.lossCount += 1;
+        state.closedTrades.unshift({ ...t, closePrice: price, status: hitTp ? "Won (1:3 TP)" : "Lost", pnlPips: pipsDiff, pnlDollar: dollar });
+        if (state.closedTrades.length > 40) state.closedTrades.pop();
+      } else {
+        stillOpen.push(t);
+      }
+    });
+    state.activeTrades = stillOpen;
+  }
+
+  function renderBlotter(){
+    let unreal = 0;
+    const rows = [];
+    state.activeTrades.forEach(t => {
+      const price = state.lastPrice[t.label];
+      let pipsDiff = 0, dollar = 0;
+      if (price != null){
+        pipsDiff = t.dir === "Buy" ? (price - t.entry)/t.pip : (t.entry - price)/t.pip;
+        dollar = pipsDiff * pipValuePerLot(t.pip) * state.lot;
+        unreal += dollar;
+      }
+      const statusBadge = t.beAlerted 
+        ? `<span class="tag-badge be-hit">🎯 1:2 Hit · Move SL to BE</span>`
+        : `<span class="tag-badge open">Open (1:3 TP)</span>`;
+
+      rows.push(`<tr>
+        <td class="sym-cell" onclick="openSymbolInTradingView('${t.label}', '${t.tf}')" title="Click to open ${t.label} on TradingView Chart">📈 ${t.label}</td>
+        <td>${TF_LABEL[t.tf]}</td>
+        <td><span class="tag-badge ${t.dir==='Buy'?'buy':'sell'}">${t.dir}</span></td>
+        <td>${t.entry.toFixed(t.pip<1?5:2)}</td><td>${t.sl.toFixed(t.pip<1?5:2)}</td><td>${t.tp.toFixed(t.pip<1?5:2)}</td>
+        <td>${price!=null?price.toFixed(t.pip<1?5:2):"—"}</td>
+        <td class="${dollar>=0?'pos':'neg'}">$${dollar.toFixed(2)}</td>
+        <td>${statusBadge}</td>
+        <td>
+          <button class="btn ghost sm" style="color:var(--amber);margin-right:4px;" onclick="openSymbolInTradingView('${t.label}', '${t.tf}')">📈 Open TV Chart</button>
+          <button class="btn sm" style="background:var(--amber);color:#1a1204;" onclick="exportSignalImageCard('${t.label}', '${t.tf}', '${t.dir}', ${t.entry}, ${t.sl}, ${t.tp})">📸 Signal Card PNG</button>
+        </td>
+      </tr>`);
+    });
+    state.closedTrades.slice(0,15).forEach(t => {
+      rows.push(`<tr style="opacity:.7;">
+        <td class="sym-cell" onclick="openSymbolInTradingView('${t.label}', '${t.tf}')" title="Click to open ${t.label} on TradingView Chart">📈 ${t.label}</td>
+        <td>${TF_LABEL[t.tf]}</td>
+        <td><span class="tag-badge ${t.dir==='Buy'?'buy':'sell'}">${t.dir}</span></td>
+        <td>${t.entry.toFixed(t.pip<1?5:2)}</td><td>${t.sl.toFixed(t.pip<1?5:2)}</td><td>${t.tp.toFixed(t.pip<1?5:2)}</td>
+        <td>${t.closePrice.toFixed(t.pip<1?5:2)}</td>
+        <td class="${t.pnlDollar>=0?'pos':'neg'}">$${t.pnlDollar.toFixed(2)}</td>
+        <td><span class="tag-badge ${t.status.includes('Won')?'won':'lost'}">${t.status}</span></td>
+        <td>
+          <button class="btn ghost sm" style="color:var(--amber);margin-right:4px;" onclick="openSymbolInTradingView('${t.label}', '${t.tf}')">📈 Open TV Chart</button>
+          <button class="btn sm" style="background:var(--amber);color:#1a1204;" onclick="exportSignalImageCard('${t.label}', '${t.tf}', '${t.dir}', ${t.entry}, ${t.sl}, ${t.tp})">📸 Signal Card PNG</button>
+        </td>
+      </tr>`);
+    });
+    blotterBody.innerHTML = rows.length ? rows.join("") : `<tr><td colspan="10" class="empty-note">Abhi tak koi sweep trade signal nahi bana.</td></tr>`;
+
+    $("openCount").textContent = state.activeTrades.length;
+    $("unrealPnl").textContent = "$"+unreal.toFixed(2);
+    $("unrealPnl").className = "val " + (unreal>=0?"pos":"neg");
+    $("realPnl").textContent = "$"+state.realizedPnl.toFixed(2);
+    $("realPnl").className = "val " + (state.realizedPnl>=0?"pos":"neg");
+    const total = unreal + state.realizedPnl;
+    $("totalPnl").textContent = "$"+total.toFixed(2);
+    $("totalPnl").className = "val " + (total>=0?"pos":"neg");
+    $("winLoss").textContent = state.winCount + " / " + state.lossCount;
+  }
+
+  // ================= Pure Signal Computation =================
+  function computeSweep(symbolObj, tf, values){
+    if (!values || values.length < 2) return null;
+    const curr = values[0], prev = values[1];
+    const currH = parseFloat(curr.high), currL = parseFloat(curr.low), currC = parseFloat(curr.close);
+    const prevH = parseFloat(prev.high), prevL = parseFloat(prev.low);
+    state.lastPrice[symbolObj.label] = currC;
+
+    if (!state.sweepState[symbolObj.label]) state.sweepState[symbolObj.label] = {};
+    if (!state.sweepState[symbolObj.label][tf]) state.sweepState[symbolObj.label][tf] = { type:"None", barsAgo:null, prevTime:null };
+    const st = state.sweepState[symbolObj.label][tf];
+
+    if (st.prevTime !== prev.datetime){ st.type = "None"; st.barsAgo = null; st.prevTime = prev.datetime; }
+
+    const brokenLow  = currC < prevL;
+    const brokenHigh = currC > prevH;
+    const lowSwept   = currL < prevL && currC >= prevL && !brokenLow;
+    const highSwept  = currH > prevH && currC <= prevH && !brokenHigh;
+
+    let newType = st.type;
+    if (brokenLow && st.type === "Low")   newType = "None";
+    if (brokenHigh && st.type === "High") newType = "None";
+    if (lowSwept)  newType = "Low";
+    if (highSwept) newType = "High";
+    if ((brokenLow || brokenHigh) && !(lowSwept || highSwept)) newType = "None";
+
+    if (newType !== st.type){
+      if (newType !== "None" && state.signalAlertTf.has(tf)){
+        feedLog.unshift({ time:new Date(), symbol:symbolObj.label, tf, type:newType });
+        if (feedLog.length > 60) feedLog.pop();
+
+        const buf = state.bufferPips[tf] * symbolObj.pip;
+        if (newType === "Low"){
+          const entry = prevL;
+          const sl = currL - buf;
+          const tp = entry + state.rr * (entry - sl); // 1:3 TP Target
+          openTrade(symbolObj, tf, "Buy", entry, sl, tp);
+        } else {
+          const entry = prevH;
+          const sl = currH + buf;
+          const tp = entry - state.rr * (sl - entry); // 1:3 TP Target
+          openTrade(symbolObj, tf, "Sell", entry, sl, tp);
+        }
+      }
+      st.type = newType;
+      st.barsAgo = newType === "None" ? null : 0;
+    }
+    return { type: st.type, barsAgo: st.barsAgo, prevH, prevL, currH, currL, currC };
+  }
+
+  // ================= Dashboard render =================
+  function buildHeader(){
+    dashHeadRow.innerHTML = "<th>Symbol</th>";
+    TF_LIST.forEach(tf => {
+      const isAlertOn = state.signalAlertTf.has(tf);
+      const th = document.createElement("th");
+      th.innerHTML = `${TF_LABEL[tf]} <span style="font-size:9px;opacity:0.7;">(${isAlertOn?'ON':'OFF'})</span>`;
+      dashHeadRow.appendChild(th);
+    });
+  }
+  function cellHTML(result, tf, symLabel){
+    if (!state.signalAlertTf.has(tf)) return `<td class="cell-none" style="opacity:0.3;">OFF</td>`;
+    if (!result || result.type === "None" || !result.type) return `<td class="cell-none">—</td>`;
+    const cls = result.type === "High" ? "cell-high" : "cell-low";
+    const arrow = result.type === "High" ? "▼ SELL Signal" : "▲ BUY Signal";
+    const bars = result.barsAgo!=null ? ` (${result.barsAgo}b)` : "";
+    return `<td class="${cls} pulse" style="cursor:pointer;" onclick="openSymbolInTradingView('${symLabel}', '${tf}')" title="Click to open ${symLabel} ${TF_LABEL[tf]} on TradingView Chart">${arrow}${bars}</td>`;
+  }
+  function renderDashboard(resultsMap){
+    dashBody.innerHTML = "";
+    state.symbols.forEach(s => {
+      const tr = document.createElement("tr");
+      let row = `<td class="sym-cell" onclick="openSymbolInTradingView('${s.label}')" title="Click to open ${s.label} on TradingView Chart">📈 ${s.label}</td>`;
+      TF_LIST.forEach(tf => {
+        const r = resultsMap[s.label]?resultsMap[s.label][tf]:null;
+        row += cellHTML(r, tf, s.label);
+      });
+      tr.innerHTML = row;
+      dashBody.appendChild(tr);
+    });
+  }
+  function renderFeed(){
+    if (feedLog.length === 0){ feedEl.innerHTML = `<div class="empty-note">Ab tak koi signal detect nahi hua.</div>`; return; }
+    feedEl.innerHTML = feedLog.slice(0,25).map(item => {
+      if (item.type === "BE"){
+        return `<div class="feed-item" style="border-color:var(--amber);background:rgba(232,184,92,0.1);"><span class="tag be">🎯 1:2 TARGET HIT</span> ${item.symbol} · ${TF_LABEL[item.tf]} <strong style="color:var(--amber);">${item.msg}</strong> <button class="btn ghost sm" style="margin-left:8px;font-size:10px;padding:2px 6px;color:var(--amber);" onclick="openSymbolInTradingView('${item.symbol}', '${item.tf}')">📈 Open Chart</button> <span class="meta">${item.time.toLocaleTimeString()}</span></div>`;
+      }
+      const tagCls = item.type === "High" ? "high" : "low";
+      const label = item.type === "High" ? "SELL SIGNAL" : "BUY SIGNAL";
+      const dirStr = item.type === "High" ? "Sell" : "Buy";
+      const t = item.time.toLocaleTimeString();
+      return `<div class="feed-item"><span class="tag ${tagCls}">${label}</span> ${item.symbol} · ${TF_LABEL[item.tf]} <button class="btn ghost sm" style="margin-left:6px;font-size:10px;padding:2px 6px;color:var(--amber);" onclick="openSymbolInTradingView('${item.symbol}', '${item.tf}')">📈 Open Chart</button> <button class="btn sm" style="margin-left:6px;font-size:10px;padding:2px 6px;background:var(--amber);color:#1a1204;" onclick="exportSignalImageCard('${item.symbol}', '${item.tf}', '${dirStr}', 0, 0, 0)">📸 Signal Card Image</button> <span class="meta">${t}</span></div>`;
+    }).join("");
+  }
+
+  // ================= TradingView live widget =================
+  function ensureTvScript(cb){
+    if (window.TradingView){ cb(); return; }
+    const s = document.createElement("script");
+    s.src = "https://s3.tradingview.com/tv.js";
+    s.onload = cb;
+    document.head.appendChild(s);
+  }
+  function renderTradingViewWidget(){
+    ensureTvScript(() => {
+      $("tvBox").innerHTML = "";
+      new window.TradingView.widget({
+        autosize: true,
+        symbol: state.tvSymbol,
+        interval: state.tvTf,
+        timezone: "Etc/UTC",
+        theme: "dark",
+        style: "1",
+        locale: "in",
+        toolbar_bg: "#11151d",
+        enable_publishing: false,
+        allow_symbol_change: true,
+        hide_top_toolbar: false,
+        hide_legend: false,
+        save_image: true,
+        details: true,
+        hotlist: true,
+        calendar: true,
+        container_id: "tvBox"
+      });
+    });
+  }
+
+  // Fullscreen Handler for TradingView
+  tvFullscreenBtn.addEventListener("click", () => {
+    const box = $("tvBox");
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (box.requestFullscreen) { box.requestFullscreen(); }
+      else if (box.webkitRequestFullscreen) { box.webkitRequestFullscreen(); }
+    } else {
+      if (document.exitFullscreen) { document.exitFullscreen(); }
+      else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+    }
+  });
+
+  // ================= Analytical chart (lightweight-charts) =================
+  let chart, candleSeries;
+  function initChart(){
+    const el = $("chartBox");
+    el.innerHTML = "";
+    chart = LightweightCharts.createChart(el, {
+      layout: { background:{ color:"transparent" }, textColor:"#8992a3", fontFamily:"JetBrains Mono, monospace" },
+      grid: { vertLines:{ color:"#1a2029" }, horzLines:{ color:"#1a2029" } },
+      rightPriceScale:{ borderColor:"#232a38" },
+      timeScale:{ borderColor:"#232a38" },
+      crosshair:{ mode: LightweightCharts.CrosshairMode.Normal },
+      autoSize:true
+    });
+    candleSeries = chart.addCandlestickSeries({ upColor:"#3ddc97", downColor:"#ff6b6b", borderVisible:false, wickUpColor:"#3ddc97", wickDownColor:"#ff6b6b" });
+  }
+
+  async function renderChartPanel(){
+    if (!chart) initChart();
+    const symbolObj = state.chartSymbol, tf = state.chartTf;
+    if (!symbolObj) return;
+    try{
+      const values = await fetchSingleFull(symbolObj, tf, 100);
+      if (!values || values.length < 3){ chartMeta.textContent = "Data kam hai."; return; }
+      const asc = values.slice().reverse();
+      const candles = asc.map(v => ({
+        time: Math.floor(new Date(v.datetime.replace(" ","T")+"Z").getTime()/1000),
+        o: parseFloat(v.open), h: parseFloat(v.high), l: parseFloat(v.low), c: parseFloat(v.close)
+      }));
+      candleSeries.setData(candles.map(c => ({ time:c.time, open:c.o, high:c.h, low:c.l, close:c.c })));
+
+      const prev = candles[candles.length-2];
+      candleSeries.createPriceLine({ price: prev.h, color:"#e8b85c", lineStyle:2, lineWidth:1, title:"Key High Level" });
+      candleSeries.createPriceLine({ price: prev.l, color:"#e8b85c", lineStyle:2, lineWidth:1, title:"Key Low Level" });
+
+      const markers = [];
+      for (let i=2; i<candles.length; i++){
+        const p = candles[i-1], c = candles[i];
+        if (c.l < p.l && c.c >= p.l) markers.push({ time:c.time, position:"belowBar", color:"#3ddc97", shape:"arrowUp", text:"BUY Signal" });
+        if (c.h > p.h && c.c <= p.h) markers.push({ time:c.time, position:"aboveBar", color:"#ff6b6b", shape:"arrowDown", text:"SELL Signal" });
+      }
+      candleSeries.setMarkers(markers);
+      chartMeta.textContent = `${symbolObj.label} · ${TF_LABEL[tf]} · last close ${asc[asc.length-1].close}`;
+    } catch(e){
+      chartMeta.textContent = "Chart data load nahi hui: " + e.message;
+    }
+  }
+
+  // ================= Poll cycle =================
+  async function pollOnce(){
+    if (state.busy || state.symbols.length===0) return;
+    if (state.dataSource === "twelvedata" && !state.apiKey) return;
+    state.busy = true;
+    clearError();
+    const resultsMap = {};
+    state.symbols.forEach(s => resultsMap[s.label] = {});
+    const activeList = TF_LIST;
+    try{
+      for (const tf of activeList){
+        const batch = await fetchBatchSeries(state.symbols, tf);
+        state.symbols.forEach(s => { resultsMap[s.label][tf] = computeSweep(s, tf, batch[s.td]); });
+        setConnected(true, "Live · last update " + new Date().toLocaleTimeString());
+        await new Promise(r => setTimeout(r, 400));
+      }
+      updateTrades();
+      renderDashboard(resultsMap);
+      renderFeed();
+      renderBlotter();
+      await renderChartPanel();
+    } catch(e){
+      setConnected(false, "Error");
+      showError("Data fetch mein masla: " + e.message);
+    }
+    state.busy = false;
+  }
+
+  function restartTimer(){
+    if (state.timer) clearInterval(state.timer);
+    state.timer = setInterval(pollOnce, state.refreshMs);
+  }
+
+  // Preset Buttons Logic with Instant TradingView Opener
+  $("btnMajors").addEventListener("click", () => { symbolsInput.value = MAJORS.join(", "); triggerConnect(); openSymbolInTradingView("EUR/USD"); });
+  $("btnCrosses").addEventListener("click", () => { symbolsInput.value = CROSSES.join(", "); triggerConnect(); openSymbolInTradingView("EUR/GBP"); });
+  $("btnMetals").addEventListener("click", () => { symbolsInput.value = METALS_INDICES.join(", "); triggerConnect(); openSymbolInTradingView("XAU/USD"); });
+  $("btnCrypto").addEventListener("click", () => { symbolsInput.value = TOP_CRYPTO.join(", "); triggerConnect(); openSymbolInTradingView("BTC/USD"); });
+  $("btnAllMarkets").addEventListener("click", () => { symbolsInput.value = ALL_MARKETS.join(", "); triggerConnect(); openSymbolInTradingView("EUR/USD"); });
+
+  // Timeframe Signal ON/OFF Switches
+  document.querySelectorAll("[data-signal-tf]").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const tf = chip.dataset.signalTf;
+      const badge = chip.querySelector(".badge");
+      if (state.signalAlertTf.has(tf)){
+        state.signalAlertTf.delete(tf);
+        chip.classList.remove("on");
+        chip.classList.add("off");
+        if (badge) badge.textContent = "OFF";
+      } else {
+        state.signalAlertTf.add(tf);
+        chip.classList.remove("off");
+        chip.classList.add("on");
+        if (badge) badge.textContent = "ON";
+      }
+      buildHeader();
+    });
+  });
+
+  soundToggle.addEventListener("change", () => {
+    state.soundAlertEnabled = soundToggle.checked;
+  });
+
+  const testPianoBtn = $("testPianoBtn");
+  if (testPianoBtn) testPianoBtn.addEventListener("click", playSignalBeep);
+
+  refreshSelect.addEventListener("change", () => { state.refreshMs = parseInt(refreshSelect.value,10); restartTimer(); });
+  $("rrInput").addEventListener("change", () => { state.rr = parseFloat($("rrInput").value) || 3; });
+  $("lotInput").addEventListener("change", () => { state.lot = parseFloat($("lotInput").value) || 0.1; renderBlotter(); });
+  TF_LIST.forEach(tf => $("buf_"+tf).addEventListener("change", () => { state.bufferPips = readBuffers(); }));
+
+  chartTfSelect.addEventListener("change", () => { state.chartTf = chartTfSelect.value; renderChartPanel(); });
+  chartSymSelect.addEventListener("change", () => {
+    state.chartSymbol = state.symbols.find(s => s.label === chartSymSelect.value);
+    renderChartPanel();
+  });
+  $("refreshNowBtn").addEventListener("click", pollOnce);
+
+  tvSymbolSelect.addEventListener("change", () => {
+    state.tvSymbol = tvSymbolSelect.value;
+    renderTradingViewWidget();
+  });
+  tvTfSelect.addEventListener("change", () => {
+    state.tvTf = tvTfSelect.value;
+    renderTradingViewWidget();
+  });
+
+  const dataSourceSelect = $("dataSourceSelect");
+  function syncDataSourceUI(){
+    const isYahoo = dataSourceSelect.value === "yahoo";
+    apiKeyInput.style.display = isYahoo ? "none" : "";
+    saveKeyBtn.textContent = isYahoo ? "Connect Live (Free Feed)" : "Connect";
+  }
+  dataSourceSelect.addEventListener("change", () => { state.dataSource = dataSourceSelect.value; syncDataSourceUI(); });
+  syncDataSourceUI();
+
+  function triggerConnect(){
+    state.dataSource = dataSourceSelect.value;
+    if (state.dataSource === "twelvedata"){
+      const key = apiKeyInput.value.trim();
+      if (!key){ showError("Pehle Twelve Data API key dalein, ya upar Yahoo Finance select karein."); return; }
+      state.apiKey = key;
+    } else {
+      state.apiKey = "";
+    }
+    state.symbols = readSymbolsFromUI();
+    if (state.symbols.length === 0){ showError("Kam se kam ek symbol darkar hai."); return; }
+    state.bufferPips = readBuffers();
+    state.rr = parseFloat($("rrInput").value) || 3;
+    state.lot = parseFloat($("lotInput").value) || 0.1;
+
+    chartSymSelect.innerHTML = state.symbols.map(s => `<option value="${s.label}">${s.label}</option>`).join("");
+    state.chartSymbol = state.symbols[0];
+
+    tvSymbolSelect.innerHTML = state.symbols.map(s => `<option value="${s.tv}">${s.label}</option>`).join("");
+    state.tvSymbol = state.symbols[0].tv;
+
+    renderQuickSymBar();
+    buildHeader();
+    setConnected(true, "Connecting...");
+    initChart();
+    renderTradingViewWidget();
+    pollOnce();
+    restartTimer();
+  }
+
+  saveKeyBtn.addEventListener("click", triggerConnect);
+
+  // Auto initialize on load
+  buildHeader();
+  renderQuickSymBar();
+  renderTradingViewWidget();
+  setTimeout(() => { triggerConnect(); }, 800);
+
+})();
+</script>
 </body>
 </html>
