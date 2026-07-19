@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MTF BOX · OANDA Sweep Terminal & Live Signal Center</title>
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <style>
   :root{
     --bg: #0a0d13;
@@ -117,8 +118,8 @@
   .mode-btn.active{ background:var(--gold); color:#0a0d13; font-weight:700; }
   .mode-btn:not(.active):hover{ color:var(--text); }
 
-  .chart-wrap{ flex:1; min-height:460px; position:relative; background:#000; }
-  .chart-wrap iframe{ width:100%; height:100%; border:0; }
+  .chart-wrap{ flex:1; min-height:480px; position:relative; background:#000; }
+  #tv_chart_container{ width:100%; height:100%; min-height:480px; }
 
   .login-banner{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -242,14 +243,14 @@
       </div>
 
       <div class="mode-switch-group">
-        <button class="mode-btn active" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Standard Chart</button>
-        <button class="mode-btn" id="btnModePro" onclick="setChartMode('pro')">🛠️ Pro Drawing Tools</button>
-        <button class="mode-btn" onclick="openPopoutWindow()">🚀 Full Chart (New Tab)</button>
+        <button class="mode-btn active" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Real-Time Chart</button>
+        <button class="mode-btn" id="btnModePro" onclick="setChartMode('pro')">🛠️ Full Tools Mode</button>
+        <button class="mode-btn" onclick="openPopoutWindow()">🚀 Open TradingView (New Tab)</button>
       </div>
     </div>
 
     <div class="login-banner">
-      <span>🔑 <b>TradingView Account Login:</b> TradingView direct web link ko <code>X-Frame-Options</code> error se bachane ke liye "Full Chart (New Tab)" click karein.</span>
+      <span>🔑 <b>TradingView Sign In:</b> TradingView account log in aur Pine script indicators apply karne ke liye 'Open TradingView (New Tab)' use karein.</span>
       <div>
         <a class="login-btn-link" href="https://www.tradingview.com/accounts/signin/" target="_blank" rel="noopener">🔑 Sign In TradingView ↗</a>
         <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="tvDirectLink" href="#" target="_blank" rel="noopener">Open Chart ↗</a>
@@ -257,7 +258,7 @@
     </div>
 
     <div class="chart-wrap">
-      <iframe id="tvChart" src="" allow="fullscreen; clipboard-read; clipboard-write;" allowtransparency="true" scrolling="no"></iframe>
+      <div id="tv_chart_container"></div>
     </div>
   </main>
 
@@ -305,20 +306,20 @@
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · WHY WAS IT BLOCKED?</span>
-        TradingView direct website URLs (<code>tradingview.com/chart/</code>) browser iframe security (<code>X-Frame-Options</code>) ki waja se block hoti hain.
+        <span class="k">01 · NATIVE JS WIDGET LOADED</span>
+        Chart ab TradingView official JS library <code>tv.js</code> ke zariye load ho raha hai (bilkul 100% unblocked).
       </div>
       <div class="step">
-        <span class="k">02 · PRO DRAWING TOOLS MODE</span>
-        <code>🛠️ Pro Drawing Tools</code> select karke aap chart par lines, fibonacci, aur drawing tools use kar sakte hain.
+        <span class="k">02 · FULL DRAWING TOOLS</span>
+        <code>🛠️ Full Tools Mode</code> par switch karke Fibonacci, Trendlines, aur Technical Indicators draw karein.
       </div>
       <div class="step">
-        <span class="k">03 · FULL LOGIN & PINE SCRIPT</span>
-        Aap <code>🚀 Full Chart (New Tab)</code> par click karke TradingView me apna account login aur Pine Editor script permanently save kar sakte hain.
+        <span class="k">03 · ACCOUNT LOGIN & PINE SCRIPT</span>
+        Aap <code>🚀 Open TradingView (New Tab)</code> par click karke TradingView me apna account login aur Pine Editor script apply kar sakte hain.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--gold-dim)">Solution:</b> TradingView iframe block error fix kar diya gaya hai. Chart dekhne ke liye <b>Standard Chart</b> ya <b>Pro Drawing Tools</b> mode use karein, aur TradingView me sign in karne ke liye <b>Full Chart (New Tab)</b> click karein.
+        <b style="color:var(--gold-dim)">Solution:</b> Chart ab official TradingView JS engine se render ho raha hai jo Opera, Chrome, Edge aur Mobile sab me 100% chalega.
       </div>
     </div>
   </aside>
@@ -384,32 +385,53 @@ function updatePKTClock() {
 setInterval(updatePKTClock, 1000);
 updatePKTClock();
 
-function tvSrc(symbol, interval, mode = "widget"){
-  const hideSide = mode === "pro" ? "0" : "1";
-  const params = new URLSearchParams({
-    symbol: "OANDA:" + symbol,
-    interval: interval,
-    hidesidetoolbar: hideSide,
-    hidetoptoolbar: "0",
-    symboledit: "1",
-    saveimage: "1",
-    toolbarbg: "0a0d13",
-    theme: "dark",
-    style: "1",
-    timezone: "Etc/UTC",
-    withdateranges: "1",
-    studies: "[]",
-    hideideas: "1",
-    locale: "en"
-  });
-  return "https://s.tradingview.com/widgetembed/?" + params.toString();
+function loadTradingViewChart(symbol, interval, mode = "widget") {
+  const container = document.getElementById("tv_chart_container");
+  if (!container) return;
+  container.innerHTML = ""; // Clear existing
+
+  if (typeof TradingView !== "undefined") {
+    new TradingView.widget({
+      "autosize": true,
+      "symbol": "OANDA:" + symbol,
+      "interval": interval,
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#0a0d13",
+      "enable_publishing": false,
+      "allow_symbol_change": true,
+      "hide_side_toolbar": mode === "widget",
+      "container_id": "tv_chart_container"
+    });
+  } else {
+    // Fallback iframe
+    const params = new URLSearchParams({
+      symbol: "OANDA:" + symbol,
+      interval: interval,
+      hidesidetoolbar: mode === "widget" ? "1" : "0",
+      hidetoptoolbar: "0",
+      symboledit: "1",
+      saveimage: "1",
+      toolbarbg: "0a0d13",
+      theme: "dark",
+      style: "1",
+      timezone: "Etc/UTC",
+      withdateranges: "1",
+      studies: "[]",
+      hideideas: "1",
+      locale: "en"
+    });
+    container.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?${params.toString()}" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>`;
+  }
 }
 
 function setChartMode(mode) {
   currentChartMode = mode;
   document.getElementById("btnModeWidget").className = "mode-btn" + (mode === "widget" ? " active" : "");
   document.getElementById("btnModePro").className = "mode-btn" + (mode === "pro" ? " active" : "");
-  document.getElementById("tvChart").src = tvSrc(activeSymbol, activeCombo.interval, mode);
+  loadTradingViewChart(activeSymbol, activeCombo.interval, mode);
 }
 
 function openPopoutWindow() {
@@ -608,7 +630,7 @@ function renderAll(){
   document.getElementById("symLabel").textContent = "OANDA:" + activeSymbol;
   document.getElementById("comboLabel").textContent = activeCombo.label;
   document.getElementById("guideSub").textContent = activeCombo.label;
-  document.getElementById("tvChart").src = tvSrc(activeSymbol, activeCombo.interval, currentChartMode);
+  loadTradingViewChart(activeSymbol, activeCombo.interval, currentChartMode);
   document.getElementById("tvDirectLink").href =
     "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
 }
