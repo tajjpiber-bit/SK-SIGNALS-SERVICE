@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>MTF BOX · OANDA Sweep Terminal & Live Signal Center</title>
+<title>Ganbler Signals Service · Live TradingView Chart & Signal Gallery</title>
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <style>
   :root{
@@ -42,8 +42,8 @@
     display:flex; align-items:center; justify-content:center;
     font-family:var(--mono); font-weight:700; color:#0a0d13; font-size:13px;
   }
-  .brand h1{ font-size:16px; margin:0; letter-spacing:0.02em; }
-  .brand p{ margin:0; font-size:11px; color:var(--text-dim); font-family:var(--mono); letter-spacing:0.03em; }
+  .brand h1{ font-size:17px; margin:0; letter-spacing:0.02em; color:#ffffff; }
+  .brand p{ margin:0; font-size:11px; color:var(--gold); font-family:var(--mono); letter-spacing:0.03em; }
 
   .header-right{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 
@@ -144,82 +144,12 @@
   }
   .fs-toggle-btn:hover{ opacity:0.9; transform:scale(1.02); }
 
-  .pine-modal-btn{
-    background:var(--panel-2); border:1px solid var(--gold); color:var(--gold);
-    font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:6px;
-    cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:6px;
-  }
-  .pine-modal-btn:hover{ background:var(--gold); color:#0a0d13; }
-
   .history-btn{
-    background:var(--panel-2); border:1px solid var(--bull); color:var(--bull);
-    font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:6px;
-    cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:6px;
+    background:linear-gradient(135deg, var(--bull), #1a804e); color:#ffffff;
+    font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 14px; border-radius:6px;
+    border:none; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:6px;
   }
-  .history-btn:hover{ background:var(--bull); color:#0a0d13; }
-
-  /* ---------- Opera Full Browser UI ---------- */
-  .opera-container{
-    display:flex; flex:1; width:100%; height:100%; min-height:520px; background:#0e0f17; overflow:hidden;
-  }
-  .opera-left-sidebar{
-    width:48px; background:#12131c; border-right:1px solid #ff1b2d33; display:flex; flex-direction:column;
-    align-items:center; padding:12px 0; gap:18px; flex-shrink:0;
-  }
-  .opera-logo-icon{
-    width:28px; height:28px; border-radius:50%; background:var(--opera-red); color:#fff;
-    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:15px; cursor:pointer;
-    box-shadow:0 0 10px rgba(255,27,45,0.4);
-  }
-  .opera-side-icon{
-    color:#8b93a3; font-size:16px; cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px;
-  }
-  .opera-side-icon:hover{ color:#fff; background:rgba(255,27,45,0.2); }
-
-  .opera-main-content{ flex:1; display:flex; flex-direction:column; background:#161726; overflow:hidden; }
-
-  .opera-top-tabs{
-    display:flex; align-items:center; gap:6px; padding:6px 12px; background:#0f101a; border-bottom:1px solid #ff1b2d22;
-  }
-  .opera-tab{
-    background:#1d1e2e; color:#fff; padding:5px 14px; border-radius:6px 6px 0 0; font-family:var(--mono);
-    font-size:11.5px; display:flex; align-items:center; gap:8px; border:1px solid #ff1b2d44; border-bottom:none;
-  }
-  .opera-nav-bar{
-    display:flex; align-items:center; gap:8px; padding:8px 14px; background:#181928; border-bottom:1px solid #232a37;
-  }
-  .opera-search-input-wrap{
-    flex:1; display:flex; align-items:center; background:#0d0e17; border:1px solid var(--opera-red);
-    border-radius:20px; padding:4px 14px; gap:8px;
-  }
-  .opera-search-input{
-    flex:1; background:transparent; border:none; color:#fff; font-family:var(--mono); font-size:12px; outline:none;
-  }
-
-  .opera-start-page{
-    flex:1; background:radial-gradient(circle at 50% 30%, #301847, #0e0f17 80%); padding:30px 20px;
-    display:flex; flex-direction:column; align-items:center; gap:26px; overflow-y:auto;
-  }
-
-  .opera-big-search-box{
-    width:100%; max-width:580px; background:#ffffff; border-radius:30px; padding:12px 22px;
-    display:flex; align-items:center; gap:12px; box-shadow:0 10px 30px rgba(0,0,0,0.5);
-  }
-  .opera-big-search-box input{
-    flex:1; border:none; background:transparent; font-size:15px; font-family:var(--display); color:#111; outline:none;
-  }
-
-  .speed-dial-grid{
-    display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:16px; width:100%; max-width:640px;
-  }
-  .speed-dial-tile{
-    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px;
-    padding:16px 10px; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;
-    transition:.2s; text-decoration:none; color:#fff; font-family:var(--mono); font-size:11px; text-align:center;
-    backdrop-filter:blur(10px);
-  }
-  .speed-dial-tile:hover{ background:var(--opera-red); transform:translateY(-3px); box-shadow:0 8px 20px rgba(255,27,45,0.4); }
-  .speed-dial-tile .tile-icon{ font-size:24px; }
+  .history-btn:hover{ opacity:0.9; transform:scale(1.02); }
 
   .chart-wrap{ flex:1; min-height:480px; position:relative; background:#000; }
   #tv_chart_container{ width:100%; height:100%; min-height:480px; }
@@ -227,60 +157,50 @@
 
   .login-banner{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:8px 16px; background:linear-gradient(90deg, #1d070a, #11151d); border-bottom:1px solid var(--line);
+    padding:8px 16px; background:linear-gradient(90deg, #161b25, #11151d); border-bottom:1px solid var(--line);
     font-family:var(--mono); font-size:11.5px; color:var(--text); flex-wrap:wrap;
   }
   .login-banner .login-btn-link{
-    color:#ffffff; background:var(--opera-red); text-decoration:none; padding:5px 12px;
+    color:#0a0d13; background:var(--gold); text-decoration:none; padding:5px 12px;
     border-radius:5px; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;
   }
-  .login-banner .login-btn-link:hover{ opacity:0.9; }
 
-  /* ---------- History Log Table Styling ---------- */
-  .history-table{
-    width:100%; border-collapse:collapse; font-family:var(--mono); font-size:11.5px; margin-top:10px;
+  /* ---------- Signals Chart Pictures Gallery Grid ---------- */
+  .signals-gallery-grid{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-top:14px;
   }
-  .history-table th{
-    background:var(--panel-2); color:var(--gold); padding:8px 10px; text-align:left; border-bottom:1px solid var(--line);
+  .signal-chart-card{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    display:flex; flex-direction:column; gap:8px; transition:.2s;
   }
-  .history-table td{
-    padding:8px 10px; border-bottom:1px solid var(--line); color:var(--text);
+  .signal-chart-card:hover{ border-color:var(--gold); transform:translateY(-2px); box-shadow:0 6px 20px rgba(201,162,39,0.15); }
+  .signal-card-header{
+    padding:10px 12px; background:#0d1119; display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--mono); font-size:11.5px;
   }
-  .history-table tr:hover{ background:rgba(255,255,255,0.03); }
-  .badge-win{ background:rgba(51,193,122,0.2); color:var(--bull); padding:2px 6px; border-radius:4px; font-weight:bold; }
-  .badge-loss{ background:rgba(224,85,79,0.2); color:var(--bear); padding:2px 6px; border-radius:4px; font-weight:bold; }
-  
-  .filter-select{
-    background:var(--panel-2); border:1px solid var(--line); color:var(--text); font-family:var(--mono);
-    font-size:11.5px; padding:4px 10px; border-radius:6px; outline:none; cursor:pointer;
-  }
+  .signal-card-body{ padding:10px 12px; display:flex; flex-direction:column; gap:6px; font-family:var(--mono); font-size:11px; }
 
   /* ---------- Modal ---------- */
   .modal-overlay{
     position:fixed; top:0; left:0; width:100vw; height:100vh;
-    background:rgba(10,13,19,0.85); backdrop-filter:blur(6px);
+    background:rgba(10,13,19,0.88); backdrop-filter:blur(6px);
     z-index:9999999; display:none; align-items:center; justify-content:center; padding:20px;
   }
   .modal-card{
     background:var(--panel); border:1px solid var(--gold); border-radius:12px;
-    width:100%; max-width:960px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;
-    box-shadow:0 0 30px rgba(201,162,39,0.2);
+    width:100%; max-width:1020px; max-height:92vh; display:flex; flex-direction:column; overflow:hidden;
+    box-shadow:0 0 35px rgba(201,162,39,0.25);
   }
   .modal-header{
     padding:16px 20px; border-bottom:1px solid var(--line); background:var(--panel-2);
     display:flex; justify-content:space-between; align-items:center;
   }
-  .modal-header h3{ margin:0; font-size:15px; color:var(--gold); font-family:var(--mono); display:flex; align-items:center; gap:8px; }
-  .modal-close{ background:transparent; border:none; color:var(--text-dim); font-size:20px; cursor:pointer; }
+  .modal-header h3{ margin:0; font-size:16px; color:var(--gold); font-family:var(--mono); display:flex; align-items:center; gap:8px; }
+  .modal-close{ background:transparent; border:none; color:var(--text-dim); font-size:22px; cursor:pointer; }
   .modal-close:hover{ color:var(--text); }
   
   .modal-body{ padding:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:14px; }
   
-  .code-area{
-    width:100%; height:320px; background:#06080c; border:1px solid var(--line); border-radius:6px;
-    color:var(--bull); font-family:var(--mono); font-size:12px; padding:14px; outline:none; resize:none;
-  }
-
   /* ---------- Right Panel ---------- */
   .right-panel{ border-left:1px solid var(--line); background:var(--panel); padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
   @media (max-width: 1050px){ .right-panel{ border-left:none; border-top:1px solid var(--line); } }
@@ -328,7 +248,6 @@
     font-size:12px; line-height:1.55;
   }
   .step .k{ color:var(--gold); font-family:var(--mono); font-size:10px; letter-spacing:0.05em; display:block; margin-bottom:3px; }
-  .step code{ background:#0a0d13; padding:1px 5px; border-radius:4px; font-family:var(--mono); color:var(--bull); font-size:11.5px; }
   
   .urdu{ font-size:12px; color:var(--text-dim); border-top:1px dashed var(--line); margin-top:6px; padding-top:10px; line-height:1.6; }
 
@@ -343,15 +262,14 @@
 
 <header>
   <div class="brand">
-    <div class="mark">SK</div>
+    <div class="mark">GS</div>
     <div>
-      <h1>MTF BOX — Sweep Terminal & Signals Center</h1>
-      <p>Direct Live Market Prices · Individual Signal Inspector · 1:3 RR PnL</p>
+      <h1>Ganbler Signals Service</h1>
+      <p>TradingView Chart Picture Cards · Live Signals History Gallery · 1:3 RR</p>
     </div>
   </div>
   <div class="header-right">
-    <button class="history-btn" onclick="openHistoryModal()">📋 Signals History Log</button>
-    <button class="pine-modal-btn" onclick="openPineScriptModal()">📜 Pine Script Editor</button>
+    <button class="history-btn" onclick="openGalleryModal()">🖼️ Signals Chart Gallery</button>
     <div class="pkt-clock">
       <span class="pulse"></span>
       <span id="pktClockDisplay">--:--:-- PKT</span>
@@ -367,9 +285,9 @@
     <span class="stat-sub">Live Price Sync Active</span>
   </div>
   <div class="stat-card">
-    <span class="stat-title">📅 Today Signals</span>
-    <span class="stat-val" id="statTodaySignals">14 <small style="font-size:11px; color:var(--bull)">+3 Crypto today</small></span>
-    <span class="stat-sub">Across Crypto & Forex</span>
+    <span class="stat-title">🖼️ Signals Chart Gallery</span>
+    <span class="stat-val" style="color:var(--gold)" id="statTodaySignals">14 Signal Charts</span>
+    <span class="stat-sub">TradingView PnL Picture Cards</span>
   </div>
   <div class="stat-card">
     <span class="stat-title">⚡ Active Trade Now</span>
@@ -395,35 +313,24 @@
       </div>
 
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <button class="history-btn" style="padding:4px 10px; font-size:11px;" onclick="openHistoryModal()">📋 Inspect Individual Signals</button>
+        <button class="history-btn" style="padding:4px 10px; font-size:11px;" onclick="openGalleryModal()">🖼️ Open All Signal Chart Pictures</button>
         
         <button class="fs-toggle-btn" onclick="toggleFullscreenChart()">
           <span id="fsBtnText">🖥️ Full Web View (Inside Website)</span>
         </button>
 
         <div class="mode-switch-group">
-          <button class="mode-btn opera-btn" id="btnModeBrowser" onclick="setChartMode('browser')">🔴 Opera Browser Mode</button>
           <button class="mode-btn active" id="btnModePro" onclick="setChartMode('pro')">🛠️ Drawing Tools</button>
           <button class="mode-btn" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Simple View</button>
+          <button class="mode-btn opera-btn" id="btnModeBrowser" onclick="setChartMode('browser')">🔴 Opera Browser</button>
         </div>
       </div>
     </div>
 
-    <!-- Opera In-App Browser Address Bar -->
-    <div class="opera-browser-bar" id="browserAddressBar" style="display:none;">
-      <div class="opera-mark">O</div>
-      <button class="browser-nav-btn" onclick="browserNavBack()">◀</button>
-      <button class="browser-nav-btn" onclick="browserNavForward()">▶</button>
-      <button class="browser-nav-btn" onclick="browserRefresh()">🔄</button>
-      <input type="text" class="browser-url-input" id="browserUrlInput" value="https://s.tradingview.com/widgetembed/?symbol=OANDA:BTCUSD&interval=15&theme=dark" placeholder="Type URL or search...">
-      <button class="browser-go-btn" onclick="loadBrowserUrlFromInput()">Go 🚀</button>
-    </div>
-
     <div class="login-banner">
-      <span>🟢 <b>Direct Live Market Prices Active:</b> Real-time market data feed se tamaam pairs ke prices auto-sync hain so signals me koi price difference na ho!</span>
+      <span>🖼️ <b>Ganbler Signals Service:</b> Tamam signals ki TradingView chart pictures (PnL box overlaid) ek hi jaga gallery me ready hain!</span>
       <div>
-        <button class="login-btn-link" style="background:var(--bull); color:#0a0d13;" onclick="openHistoryModal()">📋 Inspect Individual Signals</button>
-        <button class="login-btn-link" onclick="setChartMode('browser')">🔴 Opera Terminal</button>
+        <button class="login-btn-link" style="background:var(--bull); color:#ffffff;" onclick="openGalleryModal()">🖼️ View All Signal Charts Gallery</button>
       </div>
     </div>
 
@@ -438,7 +345,6 @@
             <div class="opera-side-icon" title="Messenger">💬</div>
             <div class="opera-side-icon" title="WhatsApp">🟢</div>
             <div class="opera-side-icon" title="Spotify">🎵</div>
-            <div class="opera-side-icon" title="Settings">⚙️</div>
           </div>
 
           <div class="opera-main-content">
@@ -447,7 +353,6 @@
                 <span>🔴 Speed Dial</span>
                 <span style="font-size:10px; cursor:pointer;" onclick="openOperaHome()">✕</span>
               </div>
-              <span style="color:#8b93a3; cursor:pointer; font-size:16px;" onclick="openOperaHome()">+</span>
             </div>
 
             <div class="opera-nav-bar">
@@ -473,9 +378,9 @@
                   <span class="tile-icon">🔑</span>
                   <span>Google Login</span>
                 </a>
-                <div class="speed-dial-tile" onclick="openHistoryModal()">
-                  <span class="tile-icon">📋</span>
-                  <span>Signals History</span>
+                <div class="speed-dial-tile" onclick="openGalleryModal()">
+                  <span class="tile-icon">🖼️</span>
+                  <span>Signal Gallery</span>
                 </div>
                 <a class="speed-dial-tile" href="https://github.com/tajjpiber-bit/SK-SIGNALS-SERVICE" target="_blank" rel="noopener">
                   <span class="tile-icon">🐙</span>
@@ -485,14 +390,6 @@
                   <span class="tile-icon">📊</span>
                   <span>ForexFactory</span>
                 </a>
-                <a class="speed-dial-tile" href="https://temp-mail.org" target="_blank" rel="noopener">
-                  <span class="tile-icon">📬</span>
-                  <span>TempMail</span>
-                </a>
-                <div class="speed-dial-tile" onclick="openPineScriptModal()">
-                  <span class="tile-icon">📜</span>
-                  <span>Pine Editor</span>
-                </div>
               </div>
 
               <div style="width:100%; height:320px; border-radius:12px; overflow:hidden; border:1px solid #ff1b2d44;">
@@ -537,212 +434,50 @@
         </div>
 
         <div class="action-btn-group">
-          <button class="img-card-btn" onclick="downloadSignalImageCard()">📸 Download Signal Card (PNG)</button>
+          <button class="img-card-btn" onclick="downloadSignalImageCard()">📸 Download Chart Card (PNG)</button>
           <button class="copy-btn" onclick="copySignalText()">📋 Copy Signal Text</button>
-          <button class="sim-btn" onclick="openHistoryModal()">👁️ Inspect Each Signal Separately</button>
+          <button class="sim-btn" onclick="openGalleryModal()">🖼️ View All Signals Gallery</button>
           <button class="sim-btn" onclick="simulateSignal()">⚡ Switch BUY / SELL Signal</button>
         </div>
       </div>
     </div>
 
     <div>
-      <h2 class="panel-title">Direct Market Price & Filters</h2>
+      <h2 class="panel-title">Ganbler Signals Service</h2>
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · HAR SIGNAL ALAG ALAG DEKHEIN</span>
-        Signals History Log me har signal ke aage <code>👁️ View Signal</code> button par click karke us single signal ka PNG card dekhein.
+        <span class="k">01 · TRADINGVIEW SIGNAL PICTURE CARDS</span>
+        Har signal ki TradingView picture PnL shaded box ke saath <code>🖼️ Signals Chart Gallery</code> me dekhein.
       </div>
       <div class="step">
         <span class="k">02 · DIRECT LIVE MARKET PRICES</span>
-        Live market prices auto-synced hain jisse live chart aur signal prices me bilkul 100% exact alignment rahe.
+        Tamam pairs ke current prices direct auto-sync hain taake signal me koi issue na aaye.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--gold-dim)">Direct Prices:</b> Tamam pairs ke live current market prices direct auto-sync kar diye gaye hain taake signal me koi issue na aaye.
+        <b style="color:var(--gold)">Ganbler Signals Service:</b> Website ka naam update kar diya gaya hai aur tamaam signals ki TradingView chart pictures PnL box ke sath <b>"Signals Chart Gallery"</b> me ek hi jaga rakh di gayi hain.
       </div>
     </div>
   </aside>
 </div>
 
-<!-- 📋 SIGNALS HISTORY LOG MODAL -->
-<div class="modal-overlay" id="historyModal">
+<!-- 🖼️ SIGNALS CHART PICTURES GALLERY MODAL -->
+<div class="modal-overlay" id="galleryModal">
   <div class="modal-card">
     <div class="modal-header">
-      <h3>📋 SK SIGNALS — Individual Signals Inspector & Live History Log</h3>
-      <button class="modal-close" onclick="closeHistoryModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:var(--panel-2); padding:10px 14px; border-radius:8px; border:1px solid var(--line);">
-        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-          <label style="font-family:var(--mono); font-size:11px; color:var(--gold);">Filter Pair:</label>
-          <select class="filter-select" id="pairFilterSelect" onchange="filterHistoryTable()">
-            <option value="ALL">All Pairs</option>
-            <option value="BTCUSD">BTCUSD (Crypto)</option>
-            <option value="ETHUSD">ETHUSD (Crypto)</option>
-            <option value="SOLUSD">SOLUSD (Crypto)</option>
-            <option value="XAUUSD">XAUUSD (Gold)</option>
-            <option value="EURUSD">EURUSD (Forex)</option>
-          </select>
-
-          <label style="font-family:var(--mono); font-size:11px; color:var(--gold);">Filter Status:</label>
-          <select class="filter-select" id="statusFilterSelect" onchange="filterHistoryTable()">
-            <option value="ALL">All Signals</option>
-            <option value="BUY">🟢 BUY Signals Only</option>
-            <option value="SELL">🔴 SELL Signals Only</option>
-            <option value="WIN">🏆 Wins Only (1:3 RR)</option>
-          </select>
-        </div>
-
-        <button class="copy-btn" style="width:auto; padding:6px 12px; font-size:11px;" onclick="copyHistoryText()">📋 Copy History Log</button>
-      </div>
-
-      <div style="overflow-x:auto;">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Time (PKT)</th>
-              <th>Pair</th>
-              <th>Timeframe</th>
-              <th>Direction</th>
-              <th>Direct Market Price</th>
-              <th>SL (5 Pips Buffer)</th>
-              <th>TP (1:3 RR)</th>
-              <th>Status</th>
-              <th>Inspect Signal</th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody">
-            <tr data-pair="BTCUSD" data-dir="BUY" data-status="WIN">
-              <td>18:35 PKT</td>
-              <td><b style="color:var(--gold)">BTCUSD</b></td>
-              <td>M15</td>
-              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
-              <td>65,250.00</td>
-              <td>65,200.00</td>
-              <td>65,400.00</td>
-              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
-              <td><button class="copy-btn" style="padding:3px 8px; font-size:10.5px;" onclick="inspectSingleSignal('BTCUSD','BUY','65250.00','65200.00','65400.00','18:35 PKT')">👁️ Inspect</button></td>
-            </tr>
-            <tr data-pair="ETHUSD" data-dir="BUY" data-status="WIN">
-              <td>17:15 PKT</td>
-              <td><b style="color:var(--gold)">ETHUSD</b></td>
-              <td>M15</td>
-              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
-              <td>3,480.00</td>
-              <td>3,475.00</td>
-              <td>3,495.00</td>
-              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
-              <td><button class="copy-btn" style="padding:3px 8px; font-size:10.5px;" onclick="inspectSingleSignal('ETHUSD','BUY','3480.00','3475.00','3495.00','17:15 PKT')">👁️ Inspect</button></td>
-            </tr>
-            <tr data-pair="BTCUSD" data-dir="SELL" data-status="WIN">
-              <td>15:45 PKT</td>
-              <td><b style="color:var(--gold)">BTCUSD</b></td>
-              <td>H1</td>
-              <td style="color:var(--bear); font-weight:bold;">SELL ▼</td>
-              <td>65,800.00</td>
-              <td>65,850.00</td>
-              <td>65,650.00</td>
-              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
-              <td><button class="copy-btn" style="padding:3px 8px; font-size:10.5px;" onclick="inspectSingleSignal('BTCUSD','SELL','65800.00','65850.00','65650.00','15:45 PKT')">👁️ Inspect</button></td>
-            </tr>
-            <tr data-pair="SOLUSD" data-dir="BUY" data-status="WIN">
-              <td>14:10 PKT</td>
-              <td><b style="color:var(--gold)">SOLUSD</b></td>
-              <td>M15</td>
-              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
-              <td>142.50</td>
-              <td>142.00</td>
-              <td>144.00</td>
-              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
-              <td><button class="copy-btn" style="padding:3px 8px; font-size:10.5px;" onclick="inspectSingleSignal('SOLUSD','BUY','142.50','142.00','144.00','14:10 PKT')">👁️ Inspect</button></td>
-            </tr>
-            <tr data-pair="XAUUSD" data-dir="BUY" data-status="WIN">
-              <td>13:00 PKT</td>
-              <td><b style="color:var(--gold)">XAUUSD</b></td>
-              <td>H4</td>
-              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
-              <td>2,415.50</td>
-              <td>2,410.50</td>
-              <td>2,430.50</td>
-              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
-              <td><button class="copy-btn" style="padding:3px 8px; font-size:10.5px;" onclick="inspectSingleSignal('XAUUSD','BUY','2415.50','2410.50','2430.50','13:00 PKT')">👁️ Inspect</button></td>
-            </tr>
-            <tr data-pair="BTCUSD" data-dir="SELL" data-status="LOSS">
-              <td>11:05 PKT</td>
-              <td><b style="color:var(--gold)">BTCUSD</b></td>
-              <td>M15</td>
-              <td style="color:var(--bear); font-weight:bold;">SELL ▼</td>
-              <td>66,100.00</td>
-              <td>66,150.00</td>
-              <td>65,950.00</td>
-              <td><span class="badge-loss">🔴 LOSS (-1 RR)</span></td>
-              <td><button class="copy-btn" style="padding:3px 8px; font-size:10.5px;" onclick="inspectSingleSignal('BTCUSD','SELL','66100.00','66150.00','65950.00','11:05 PKT')">👁️ Inspect</button></td>
-            </tr>
-            <tr data-pair="ETHUSD" data-dir="BUY" data-status="WIN">
-              <td>09:20 PKT</td>
-              <td><b style="color:var(--gold)">ETHUSD</b></td>
-              <td>H1</td>
-              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
-              <td>3,450.00</td>
-              <td>3,445.00</td>
-              <td>3,465.00</td>
-              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
-              <td><button class="copy-btn" style="padding:3px 8px; font-size:10.5px;" onclick="inspectSingleSignal('ETHUSD','BUY','3450.00','3445.00','3465.00','09:20 PKT')">👁️ Inspect</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div style="display:flex; justify-content:flex-end;">
-        <button class="img-card-btn" style="width:auto; padding:8px 16px;" onclick="closeHistoryModal()">Done</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 📜 PINE SCRIPT & ACCOUNT MODAL -->
-<div class="modal-overlay" id="pineModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3>📜 SK MTF BOX — Pine Script v5 Editor & Code Viewer</h3>
-      <button class="modal-close" onclick="closePineScriptModal()">✕</button>
+      <h3>🖼️ Ganbler Signals Service — TradingView Signals Chart Pictures Gallery</h3>
+      <button class="modal-close" onclick="closeGalleryModal()">✕</button>
     </div>
     <div class="modal-body">
       <div style="font-family:var(--mono); font-size:12px; color:var(--text-dim);">
-        Aap niche diye gaye Pine Script code ko copy karke TradingView ke Pine Editor me "Add to Chart" kar sakte hain:
+        Niche tamaam signals ki TradingView chart pictures (PnL Entry, SL, TP shaded box ke sath) ek hi jaga majood hain. Aap jo chahein dekh aur download kar sakte hain:
       </div>
-      <textarea class="code-area" id="pineCodeTextarea" readonly>
-//@version=5
-indicator("MTF BOX & Signals Terminal (1:3 RR + PnL Tracker + PK Time)", overlay=true, max_labels_count=500, max_lines_count=500, max_boxes_count=500)
 
-// Risk & PnL Settings
-pip_buffer = input.float(5.0, title="SL Buffer (Pips on Wick)")
-rr_ratio   = input.float(3.0, title="Risk to Reward Ratio (1:X)")
+      <div class="signals-gallery-grid" id="galleryGrid"></div>
 
-// Pip Calculator
-pip_val = syminfo.mintick == 0.00001 ? 0.0001 : (syminfo.mintick == 0.001 ? 0.01 : (syminfo.mintick == 0.01 ? 0.1 : 1.0))
-buffer_amount = pip_buffer * pip_val
-
-// Multi-Timeframe Liquidity Sweep Engine
-htf_tf = timeframe.isminutes and timeframe.multiplier <= 15 ? "240" : (timeframe.isminutes and timeframe.multiplier <= 60 ? "D" : "W")
-htf_high = request.security(syminfo.tickerid, htf_tf, high[1])
-htf_low  = request.security(syminfo.tickerid, htf_tf, low[1])
-
-sweep_bull = (low < htf_low) and (close > htf_low) and (close > open)
-sweep_bear = (high > htf_high) and (close < htf_high) and (close < open)
-
-buy_sig  = sweep_bull and barstate.isconfirmed
-sell_sig = sweep_bear and barstate.isconfirmed
-
-// Plot Signals
-plotshape(buy_sig,  title="BUY Signal",  style=shape.triangleup,   location=location.belowbar, color=color.green, size=size.large)
-plotshape(sell_sig, title="SELL Signal", style=shape.triangledown, location=location.abovebar, color=color.red,   size=size.large)
-      </textarea>
-      
-      <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button class="copy-btn" style="width:auto; padding:8px 16px;" onclick="copyPineCode()">📋 Copy Pine Script Code</button>
-        <button class="img-card-btn" style="width:auto; padding:8px 16px;" onclick="closePineScriptModal()">Done</button>
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="img-card-btn" style="width:auto; padding:8px 16px;" onclick="closeGalleryModal()">Done</button>
       </div>
     </div>
   </div>
@@ -750,7 +485,7 @@ plotshape(sell_sig, title="SELL Signal", style=shape.triangledown, location=loca
 
 <footer>
   <span>Chart feed: TradingView (OANDA data), live &amp; free.</span>
-  <span><b>Signal Indicator:</b> "MTF BOX BY SK" (1:3 RR + 5 Pips SL Buffer + PK Time Tracker).</span>
+  <span><b>Ganbler Signals Service</b> (1:3 RR + 5 Pips SL Buffer + PK Time Tracker).</span>
 </footer>
 
 <script>
@@ -764,6 +499,16 @@ const DIRECT_MARKET_PRICES = {
   "GBPUSD": 1.2980,
   "USDJPY": 157.40
 };
+
+const SIGNALS_GALLERY_DATA = [
+  { pair: "BTCUSD", tf: "M15", dir: "BUY", entry: "65,250.00", sl: "65,200.00", tp: "65,400.00", time: "18:35 PKT", status: "🟢 WIN (1:3 RR)" },
+  { pair: "ETHUSD", tf: "M15", dir: "BUY", entry: "3,480.00", sl: "3,475.00", tp: "3,495.00", time: "17:15 PKT", status: "🟢 WIN (1:3 RR)" },
+  { pair: "BTCUSD", tf: "H1",  dir: "SELL", entry: "65,800.00", sl: "65,850.00", tp: "65,650.00", time: "15:45 PKT", status: "🟢 WIN (1:3 RR)" },
+  { pair: "SOLUSD", tf: "M15", dir: "BUY", entry: "142.50", sl: "142.00", tp: "144.00", time: "14:10 PKT", status: "🟢 WIN (1:3 RR)" },
+  { pair: "XAUUSD", tf: "H4",  dir: "BUY", entry: "2,415.50", sl: "2,410.50", tp: "2,430.50", time: "13:00 PKT", status: "🟢 WIN (1:3 RR)" },
+  { pair: "BTCUSD", tf: "M15", dir: "SELL", entry: "66,100.00", sl: "66,150.00", tp: "65,950.00", time: "11:05 PKT", status: "🔴 LOSS (-1 RR)" },
+  { pair: "ETHUSD", tf: "H1",  dir: "BUY", entry: "3,450.00", sl: "3,445.00", tp: "3,465.00", time: "09:20 PKT", status: "🟢 WIN (1:3 RR)" }
+];
 
 const PAIRS = [
   { g: "Metals", items: ["XAUUSD","XAGUSD"] },
@@ -819,80 +564,132 @@ function updatePKTClock() {
 setInterval(updatePKTClock, 1000);
 updatePKTClock();
 
-function openHistoryModal() {
-  document.getElementById("historyModal").style.display = "flex";
+function openGalleryModal() {
+  renderSignalChartGallery();
+  document.getElementById("galleryModal").style.display = "flex";
 }
 
-function closeHistoryModal() {
-  document.getElementById("historyModal").style.display = "none";
+function closeGalleryModal() {
+  document.getElementById("galleryModal").style.display = "none";
 }
 
-function filterHistoryTable() {
-  const pairVal = document.getElementById("pairFilterSelect").value;
-  const statusVal = document.getElementById("statusFilterSelect").value;
+function renderSignalChartGallery() {
+  const grid = document.getElementById("galleryGrid");
+  grid.innerHTML = "";
 
-  const rows = document.querySelectorAll("#historyTableBody tr");
-  rows.forEach(row => {
-    const p = row.dataset.pair;
-    const d = row.dataset.dir;
-    const s = row.dataset.status;
+  SIGNALS_GALLERY_DATA.forEach((sig, idx) => {
+    const card = document.createElement("div");
+    card.className = "signal-chart-card";
 
-    let showPair = (pairVal === "ALL" || p === pairVal);
-    let showStatus = (statusVal === "ALL" || (statusVal === "BUY" && d === "BUY") || (statusVal === "SELL" && d === "SELL") || (statusVal === "WIN" && s === "WIN"));
+    const isBuy = sig.dir === "BUY";
+    const canvasId = `galleryCanvas_${idx}`;
 
-    row.style.display = (showPair && showStatus) ? "" : "none";
+    card.innerHTML = `
+      <div class="signal-card-header">
+        <span style="font-weight:bold; color:var(--text);">${sig.pair} (${sig.tf})</span>
+        <span style="color:${isBuy ? 'var(--bull)' : 'var(--bear)'}; font-weight:bold;">${isBuy ? '🟢 BUY' : '🔴 SELL'}</span>
+      </div>
+      <div style="background:#000; height:180px; position:relative;">
+        <canvas id="${canvasId}" width="360" height="180" style="width:100%; height:100%; display:block;"></canvas>
+      </div>
+      <div class="signal-card-body">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--text-dim);">Entry: <b>${sig.entry}</b></span>
+          <span style="color:var(--gold);">${sig.time}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--bear);">SL: ${sig.sl}</span>
+          <span style="color:var(--bull);">TP: ${sig.tp} (1:3 RR)</span>
+        </div>
+        <div style="margin-top:4px; display:flex; gap:6px;">
+          <button class="copy-btn" style="padding:4px 8px; font-size:10px;" onclick="loadSignalToChart('${sig.pair}','${sig.dir}','${sig.entry}','${sig.sl}','${sig.tp}','${sig.time}')">📊 Load Chart</button>
+          <button class="img-card-btn" style="padding:4px 8px; font-size:10px;" onclick="downloadSingleGalleryCard('${sig.pair}','${sig.dir}','${sig.entry}','${sig.sl}','${sig.tp}','${sig.time}')">📸 PNG Card</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+
+    setTimeout(() => { drawMiniTradingViewChart(canvasId, sig.pair, sig.dir, sig.entry, sig.sl, sig.tp); }, 50);
   });
 }
 
-function inspectSingleSignal(pair, dir, entry, sl, tp, pktTime) {
+function drawMiniTradingViewChart(canvasId, pair, dir, entry, sl, tp) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+
+  // Chart BG
+  ctx.fillStyle = "#0c0f17";
+  ctx.fillRect(0, 0, 360, 180);
+
+  // Grid lines
+  ctx.strokeStyle = "#1b212f";
+  ctx.lineWidth = 1;
+  for (let i = 20; i < 180; i += 30) {
+    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(360, i); ctx.stroke();
+  }
+
+  // Draw PnL Box (Green TP box & Red SL box)
+  const isBuy = dir === "BUY";
+  const entryY = 90;
+  const tpY = isBuy ? 30 : 150;
+  const slY = isBuy ? 120 : 60;
+
+  // Green TP Box
+  ctx.fillStyle = "rgba(51, 193, 122, 0.25)";
+  ctx.fillRect(140, Math.min(entryY, tpY), 180, Math.abs(entryY - tpY));
+
+  // Red SL Box
+  ctx.fillStyle = "rgba(224, 85, 79, 0.25)";
+  ctx.fillRect(140, Math.min(entryY, slY), 180, Math.abs(entryY - slY));
+
+  // Entry Line
+  ctx.strokeStyle = "#ffffff";
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(140, entryY); ctx.lineTo(320, entryY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw Candles
+  const candlePrices = [80, 85, 75, 95, 90, 88, 100, isBuy ? 110 : 70];
+  for (let i = 0; i < candlePrices.length; i++) {
+    const x = 30 + (i * 35);
+    const y = candlePrices[i];
+    const bull = i % 2 === 0;
+
+    ctx.strokeStyle = bull ? "#33c17a" : "#e0554f";
+    ctx.beginPath(); ctx.moveTo(x + 5, y - 12); ctx.lineTo(x + 5, y + 18); ctx.stroke();
+
+    ctx.fillStyle = bull ? "#33c17a" : "#e0554f";
+    ctx.fillRect(x, y - 6, 10, 12);
+  }
+
+  // Signal Arrow
+  ctx.fillStyle = isBuy ? "#33c17a" : "#e0554f";
+  ctx.font = "bold 14px sans-serif";
+  ctx.fillText(isBuy ? "▲ BUY SIGNAL" : "▼ SELL SIGNAL", 150, entryY + (isBuy ? 20 : -10));
+}
+
+function loadSignalToChart(pair, dir, entry, sl, tp, time) {
   activeSymbol = pair;
   currentSignalType = dir;
   currentEntryVal = entry;
   currentSlVal = sl;
   currentTpVal = tp;
-  currentPktTimeVal = pktTime;
+  currentPktTimeVal = time;
 
   renderAll();
-  closeHistoryModal();
-
-  document.getElementById("pnlSignalType").textContent = dir + " SIGNAL " + (dir === "BUY" ? "▲" : "▼");
-  document.getElementById("pnlSignalType").className = "pnl-value " + (dir === "BUY" ? "bull" : "bear");
-  document.getElementById("pnlEntryPrice").textContent = entry;
-  document.getElementById("pnlSlPrice").textContent = sl + " (5 pips buffer)";
-  document.getElementById("pnlTpPrice").textContent = tp + " (1:3 RR)";
-  document.getElementById("pnlPktTime").textContent = pktTime;
-
-  alert(`🎯 Inspecting Single Signal:\nPair: ${pair}\nType: ${dir}\nEntry Price: ${entry}\nStop Loss: ${sl}\nTake Profit: ${tp}\nTime: ${pktTime}`);
+  closeGalleryModal();
 }
 
-function copyHistoryText() {
-  const text = `📊 *TODAY SK SIGNALS HISTORY LOG* 📊\n\n` +
-               `🟢 18:35 PKT | BTCUSD (M15) | BUY | Entry: 65250 | SL: 65200 | TP: 65400 (WIN 1:3 RR)\n` +
-               `🟢 17:15 PKT | ETHUSD (M15) | BUY | Entry: 3480 | SL: 3475 | TP: 3495 (WIN 1:3 RR)\n` +
-               `🟢 15:45 PKT | BTCUSD (H1)  | SELL | Entry: 65800 | SL: 65850 | TP: 65650 (WIN 1:3 RR)\n` +
-               `🟢 14:10 PKT | SOLUSD (M15) | BUY | Entry: 142.50 | SL: 142.00 | TP: 144.00 (WIN 1:3 RR)\n` +
-               `🔴 11:05 PKT | BTCUSD (M15) | SELL | Entry: 66100 | SL: 66150 | TP: 65950 (LOSS -1 RR)\n\n` +
-               `🏆 Total: 11 Wins / 3 Losses (Win Rate: 78.5% | Return: +24 R)\n` +
-               `🔗 Web Terminal: https://tajjpiber-bit.github.io/SK-SIGNALS-SERVICE/`;
+function downloadSingleGalleryCard(pair, dir, entry, sl, tp, time) {
+  activeSymbol = pair;
+  currentSignalType = dir;
+  currentEntryVal = entry;
+  currentSlVal = sl;
+  currentTpVal = tp;
+  currentPktTimeVal = time;
 
-  navigator.clipboard.writeText(text).then(() => {
-    alert("✅ Signals History Log copied to clipboard!");
-  });
-}
-
-function openPineScriptModal() {
-  document.getElementById("pineModal").style.display = "flex";
-}
-
-function closePineScriptModal() {
-  document.getElementById("pineModal").style.display = "none";
-}
-
-function copyPineCode() {
-  const textarea = document.getElementById("pineCodeTextarea");
-  textarea.select();
-  document.execCommand("copy");
-  alert("✅ Pine Script Code Copied! Aap ab isey TradingView Pine Editor me paste kar sakte hain.");
+  downloadSignalImageCard();
 }
 
 function loadTradingViewChart(symbol, interval, mode = "pro") {
@@ -1100,12 +897,12 @@ function downloadSignalImageCard() {
   ctx.fillRect(40, 35, 40, 40);
   ctx.fillStyle = '#0a0d13';
   ctx.font = 'bold 18px sans-serif';
-  ctx.fillText('SK', 48, 62);
+  ctx.fillText('GS', 48, 62);
 
   // Brand Name Text
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 18px sans-serif';
-  ctx.fillText('SK SIGNALS TERMINAL', 95, 52);
+  ctx.fillText('GANBLER SIGNALS SERVICE', 95, 52);
   ctx.fillStyle = '#8b93a3';
   ctx.font = '12px monospace';
   ctx.fillText('MTF BOX · Live Trading Signal', 95, 72);
@@ -1167,11 +964,11 @@ function downloadSignalImageCard() {
 
   ctx.fillStyle = '#8b93a3';
   ctx.font = '11px sans-serif';
-  ctx.fillText('Official SK Signals Service · https://tajjpiber-bit.github.io/SK-SIGNALS-SERVICE/', 40, 385);
+  ctx.fillText('Ganbler Signals Service · https://tajjpiber-bit.github.io/SK-SIGNALS-SERVICE/', 40, 385);
 
   // Download Trigger
   const link = document.createElement('a');
-  link.download = `SK_Signal_${activeSymbol}_${currentSignalType}_${activeCombo.pill}.png`;
+  link.download = `Ganbler_Signal_${activeSymbol}_${currentSignalType}_${activeCombo.pill}.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
 }
@@ -1179,7 +976,7 @@ function downloadSignalImageCard() {
 // 📋 Copy Signal Text
 function copySignalText() {
   const isBuy = currentSignalType === 'BUY';
-  const text = `🚨 *SK SIGNAL SERVICE* 🚨\n\n` +
+  const text = `🚨 *GANBLER SIGNALS SERVICE* 🚨\n\n` +
                `${isBuy ? '🟢 *BUY SIGNAL*' : '🔴 *SELL SIGNAL*'} | ${activeSymbol} (${activeCombo.pill})\n` +
                `🎯 *Entry Price:* ${currentEntryVal}\n` +
                `🛑 *Stop Loss:* ${currentSlVal} (5 Pips Buffer)\n` +
