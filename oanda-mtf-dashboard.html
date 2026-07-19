@@ -104,7 +104,15 @@
   }
 
   /* ---------- Chart ---------- */
-  .chart-area{ display:flex; flex-direction:column; min-width:0; }
+  .chart-area{ display:flex; flex-direction:column; min-width:0; transition:all 0.3s ease; }
+  .chart-area.fullscreen-mode {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 999999;
+    background: var(--bg);
+  }
+
   .chart-toolbar{
     display:flex; justify-content:space-between; align-items:center; padding:8px 16px;
     border-bottom:1px solid var(--line); font-family:var(--mono); font-size:12px; color:var(--text-dim);
@@ -121,16 +129,23 @@
   .mode-btn.active{ background:var(--gold); color:#0a0d13; font-weight:700; }
   .mode-btn:not(.active):hover{ color:var(--text); }
 
+  .fs-toggle-btn{
+    background:linear-gradient(135deg, var(--gold), var(--gold-dim));
+    color:#0a0d13; border:none; font-family:var(--mono); font-size:11.5px; font-weight:700;
+    padding:6px 14px; border-radius:6px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .fs-toggle-btn:hover{ opacity:0.9; transform:scale(1.02); }
+
   .chart-wrap{ flex:1; min-height:480px; position:relative; background:#000; }
   #tv_chart_container{ width:100%; height:100%; min-height:480px; }
 
   .login-banner{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:9px 16px; background:linear-gradient(90deg, #161b25, #11151d); border-bottom:1px solid var(--line);
+    padding:8px 16px; background:linear-gradient(90deg, #161b25, #11151d); border-bottom:1px solid var(--line);
     font-family:var(--mono); font-size:11.5px; color:var(--text); flex-wrap:wrap;
   }
   .login-banner .login-btn-link{
-    color:#0a0d13; background:var(--gold); text-decoration:none; padding:6px 12px;
+    color:#0a0d13; background:var(--gold); text-decoration:none; padding:5px 12px;
     border-radius:5px; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;
   }
   .login-banner .login-btn-link:hover{ background:#e0bb2f; }
@@ -245,18 +260,23 @@
         <span class="tag" id="comboLabel">H4 Zone · M15 Chart</span>
       </div>
 
-      <div class="mode-switch-group">
-        <button class="mode-btn active" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Real-Time Chart</button>
-        <button class="mode-btn" id="btnModePro" onclick="setChartMode('pro')">🛠️ Full Drawing Tools</button>
-        <a class="mode-btn" style="color:var(--gold);" id="fullWebTabBtn" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15" target="_blank" rel="noopener">🔐 Full Web View (Login) ↗</a>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="fs-toggle-btn" onclick="toggleFullscreenChart()">
+          <span id="fsBtnText">🖥️ Full Web View (Inside Website)</span>
+        </button>
+
+        <div class="mode-switch-group">
+          <button class="mode-btn active" id="btnModePro" onclick="setChartMode('pro')">🛠️ Drawing Tools</button>
+          <button class="mode-btn" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Simple View</button>
+        </div>
       </div>
     </div>
 
     <div class="login-banner">
-      <span>🔑 <b>TradingView Sign In:</b> Browser security ki waja se TradingView login hamesha new tab me open hota hai taake 100% login save rahe!</span>
+      <span>🖥️ <b>Full Web View Inside Website:</b> Upar "Full Web View" button dabane par poora chart website me hi full-screen ho jayega!</span>
       <div>
         <a class="login-btn-link" href="https://www.tradingview.com/accounts/signin/" target="_blank" rel="noopener">🔑 Sign In TradingView ↗</a>
-        <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="tvDirectLink" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15" target="_blank" rel="noopener">Open Web Chart ↗</a>
+        <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="fullWebTabBtn" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15" target="_blank" rel="noopener">TradingView Site ↗</a>
       </div>
     </div>
 
@@ -305,20 +325,20 @@
     </div>
 
     <div>
-      <h2 class="panel-title">TradingView Account Login</h2>
+      <h2 class="panel-title">Full Web View Guide</h2>
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · WHY FULL WEB VIEW OPENS IN NEW TAB</span>
-        TradingView direct website URLs (<code>tradingview.com/chart/</code>) browser iframe security (<code>X-Frame-Options</code>) ki waja se webpage ke andar frame me block hoti hain. Is liye Full Web View new tab me open hota hai taake 100% login working rahe.
+        <span class="k">01 · FULL WEB VIEW INSIDE WEBSITE</span>
+        Upar golden button <code>🖥️ Full Web View (Inside Website)</code> par click karke aap isi website par poora TradingView chart full screen kar sakte hain.
       </div>
       <div class="step">
-        <span class="k">02 · PRO DRAWING TOOLS MODE</span>
-        Webpage ke andar <code>🛠️ Full Drawing Tools</code> mode select karke aap chart par trendlines, fibonacci, aur technical tools draw kar sakte hain.
+        <span class="k">02 · DRAWING TOOLS & INDICATORS</span>
+        Left side par poori Drawing Toolbar (Trendlines, Fibonacci, Shapes, Text) enabled hai jo aap chart par draw kar sakte hain.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--gold-dim)">Solution:</b> <b>"Full Web View (Login)"</b> button ab direct new tab me full TradingView web editor kholega jahan aapka account 100% login chalega aur koi block error nahi aayega!
+        <b style="color:var(--gold-dim)">Solution:</b> Ab aap <b>"Full Web View (Inside Website)"</b> button dabakar isi website ke andar bina kisi block error ke poora TradingView chart full-screen screen par chala sakte hain!
       </div>
     </div>
   </aside>
@@ -367,7 +387,7 @@ const COMBOS = [
 
 let activeSymbol = "XAUUSD";
 let activeCombo = COMBOS[0];
-let currentChartMode = "widget"; // "widget" or "pro"
+let currentChartMode = "pro"; // Default to full drawing tools mode!
 
 let currentSignalType = "BUY";
 let currentEntryVal = "2415.50";
@@ -384,7 +404,7 @@ function updatePKTClock() {
 setInterval(updatePKTClock, 1000);
 updatePKTClock();
 
-function loadTradingViewChart(symbol, interval, mode = "widget") {
+function loadTradingViewChart(symbol, interval, mode = "pro") {
   const container = document.getElementById("tv_chart_container");
   if (!container) return;
   container.innerHTML = "";
@@ -402,6 +422,13 @@ function loadTradingViewChart(symbol, interval, mode = "widget") {
       "enable_publishing": false,
       "allow_symbol_change": true,
       "hide_side_toolbar": mode === "widget",
+      "details": true,
+      "hotlist": true,
+      "calendar": true,
+      "withdateranges": true,
+      "show_popup_button": true,
+      "popup_width": "1000",
+      "popup_height": "650",
       "container_id": "tv_chart_container"
     });
   } else {
@@ -423,6 +450,14 @@ function loadTradingViewChart(symbol, interval, mode = "widget") {
     });
     container.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?${params.toString()}" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>`;
   }
+}
+
+function toggleFullscreenChart() {
+  const chartArea = document.querySelector(".chart-area");
+  chartArea.classList.toggle("fullscreen-mode");
+  const isFS = chartArea.classList.contains("fullscreen-mode");
+  document.getElementById("fsBtnText").textContent = isFS ? "📉 Exit Fullscreen Mode" : "🖥️ Full Web View (Inside Website)";
+  loadTradingViewChart(activeSymbol, activeCombo.interval, currentChartMode);
 }
 
 function setChartMode(mode) {
@@ -626,7 +661,6 @@ function renderAll(){
   loadTradingViewChart(activeSymbol, activeCombo.interval, currentChartMode);
   
   const fullUrl = "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
-  document.getElementById("tvDirectLink").href = fullUrl;
   document.getElementById("fullWebTabBtn").href = fullUrl;
 }
 
