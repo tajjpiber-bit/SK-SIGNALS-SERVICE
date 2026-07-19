@@ -45,7 +45,7 @@
   .brand h1{ font-size:16px; margin:0; letter-spacing:0.02em; }
   .brand p{ margin:0; font-size:11px; color:var(--text-dim); font-family:var(--mono); letter-spacing:0.03em; }
 
-  .header-right{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .header-right{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 
   .pkt-clock{
     font-family:var(--mono); font-size:11px; color:var(--gold);
@@ -79,7 +79,7 @@
   .stat-sub{ font-size:11px; color:var(--text-dim); }
 
   /* ---------- Layout ---------- */
-  .layout{ flex:1; display:grid; grid-template-columns: 220px 1fr 290px; min-height:0; }
+  .layout{ flex:1; display:grid; grid-template-columns: 220px 1fr 310px; min-height:0; }
   @media (max-width: 1050px){ .layout{ grid-template-columns: 1fr; } }
 
   /* ---------- Sidebar ---------- */
@@ -149,6 +149,13 @@
   }
   .pine-modal-btn:hover{ background:var(--gold); color:#0a0d13; }
 
+  .history-btn{
+    background:var(--panel-2); border:1px solid var(--bull); color:var(--bull);
+    font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:6px;
+    cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .history-btn:hover{ background:var(--bull); color:#0a0d13; }
+
   /* ---------- Opera Full Browser UI ---------- */
   .opera-container{
     display:flex; flex:1; width:100%; height:100%; min-height:520px; background:#0e0f17; overflow:hidden;
@@ -169,7 +176,6 @@
 
   .opera-main-content{ flex:1; display:flex; flex-direction:column; background:#161726; overflow:hidden; }
 
-  /* Opera Top Tab Bar & Address Bar */
   .opera-top-tabs{
     display:flex; align-items:center; gap:6px; padding:6px 12px; background:#0f101a; border-bottom:1px solid #ff1b2d22;
   }
@@ -188,7 +194,6 @@
     flex:1; background:transparent; border:none; color:#fff; font-family:var(--mono); font-size:12px; outline:none;
   }
 
-  /* Opera Speed Dial Start Page Canvas */
   .opera-start-page{
     flex:1; background:radial-gradient(circle at 50% 30%, #301847, #0e0f17 80%); padding:30px 20px;
     display:flex; flex-direction:column; align-items:center; gap:26px; overflow-y:auto;
@@ -229,6 +234,21 @@
   }
   .login-banner .login-btn-link:hover{ opacity:0.9; }
 
+  /* ---------- History Log Table Styling ---------- */
+  .history-table{
+    width:100%; border-collapse:collapse; font-family:var(--mono); font-size:11.5px; margin-top:10px;
+  }
+  .history-table th{
+    background:var(--panel-2); color:var(--gold); padding:8px 10px; text-align:left; border-bottom:1px solid var(--line);
+  }
+  .history-table td{
+    padding:8px 10px; border-bottom:1px solid var(--line); color:var(--text);
+  }
+  .history-table tr:hover{ background:rgba(255,255,255,0.03); }
+  .badge-win{ background:rgba(51,193,122,0.2); color:var(--bull); padding:2px 6px; border-radius:4px; font-weight:bold; }
+  .badge-loss{ background:rgba(224,85,79,0.2); color:var(--bear); padding:2px 6px; border-radius:4px; font-weight:bold; }
+  .badge-run{ background:rgba(201,162,39,0.2); color:var(--gold); padding:2px 6px; border-radius:4px; font-weight:bold; }
+
   /* ---------- Modal ---------- */
   .modal-overlay{
     position:fixed; top:0; left:0; width:100vw; height:100vh;
@@ -237,7 +257,7 @@
   }
   .modal-card{
     background:var(--panel); border:1px solid var(--gold); border-radius:12px;
-    width:100%; max-width:850px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;
+    width:100%; max-width:920px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;
     box-shadow:0 0 30px rgba(201,162,39,0.2);
   }
   .modal-header{
@@ -324,7 +344,8 @@
     </div>
   </div>
   <div class="header-right">
-    <button class="pine-modal-btn" onclick="openPineScriptModal()">📜 Pine Script Editor & Code</button>
+    <button class="history-btn" onclick="openHistoryModal()">📋 Signals History Log</button>
+    <button class="pine-modal-btn" onclick="openPineScriptModal()">📜 Pine Script Editor</button>
     <div class="pkt-clock">
       <span class="pulse"></span>
       <span id="pktClockDisplay">--:--:-- PKT</span>
@@ -336,18 +357,18 @@
 <div class="analytics-bar">
   <div class="stat-card">
     <span class="stat-title">📅 Today Signals</span>
-    <span class="stat-val" id="statTodaySignals">14 <small style="font-size:11px; color:var(--bull)">+3 today</small></span>
-    <span class="stat-sub">Across 32 Pairs</span>
+    <span class="stat-val" id="statTodaySignals">14 <small style="font-size:11px; color:var(--bull)">+3 Crypto today</small></span>
+    <span class="stat-sub">Across Crypto & Forex</span>
   </div>
   <div class="stat-card">
     <span class="stat-title">⚡ Active Trades Now</span>
     <span class="stat-val" style="color:var(--gold)" id="statActiveTrades">2 Running</span>
-    <span class="stat-sub" id="statActivePairs">XAUUSD (BUY) · EURUSD (SELL)</span>
+    <span class="stat-sub" id="statActivePairs">BTCUSD (BUY) · ETHUSD (BUY)</span>
   </div>
   <div class="stat-card">
     <span class="stat-title">🏆 Today Win / Loss</span>
     <span class="stat-val" style="color:var(--bull)" id="statWinLoss">11 W - 3 L</span>
-    <span class="stat-sub">Win Rate: 78.5% (1:3 RR)</span>
+    <span class="stat-sub">Win Rate: 78.5% (+24 R)</span>
   </div>
   <div class="stat-card">
     <span class="stat-title">🎯 SL & TP Settings</span>
@@ -367,6 +388,8 @@
       </div>
 
       <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <button class="history-btn" style="padding:4px 10px; font-size:11px;" onclick="openHistoryModal()">📋 View Signal History Log</button>
+        
         <button class="fs-toggle-btn" onclick="toggleFullscreenChart()">
           <span id="fsBtnText">🖥️ Full Web View (Inside Website)</span>
         </button>
@@ -379,11 +402,30 @@
       </div>
     </div>
 
+    <!-- Opera In-App Browser Address Bar -->
+    <div class="opera-browser-bar" id="browserAddressBar" style="display:none;">
+      <div class="opera-mark">O</div>
+      <button class="browser-nav-btn" onclick="browserNavBack()">◀</button>
+      <button class="browser-nav-btn" onclick="browserNavForward()">▶</button>
+      <button class="browser-nav-btn" onclick="browserRefresh()">🔄</button>
+      <input type="text" class="browser-url-input" id="browserUrlInput" value="https://s.tradingview.com/widgetembed/?symbol=OANDA:BTCUSD&interval=15&theme=dark" placeholder="Type URL or search...">
+      <button class="browser-go-btn" onclick="loadBrowserUrlFromInput()">Go 🚀</button>
+    </div>
+
+    <!-- Opera Speed Dial Bookmarks Bar -->
+    <div class="speed-dial-bar" id="speedDialBar" style="display:none;">
+      <span style="color:var(--opera-red); font-weight:bold;">Speed Dial:</span>
+      <div class="speed-dial-item" onclick="navigateBrowser('https://s.tradingview.com/widgetembed/?symbol=OANDA:BTCUSD&interval=15&theme=dark')">🪙 BTCUSD Live</div>
+      <div class="speed-dial-item" onclick="openHistoryModal()">📋 Today Signals Log</div>
+      <div class="speed-dial-item" onclick="navigateBrowser('https://www.tradingview.com/accounts/signin/')">🔑 TradingView Sign In</div>
+      <div class="speed-dial-item" onclick="openPineScriptModal()">📜 Pine Script Code</div>
+    </div>
+
     <div class="login-banner">
-      <span>🔴 <b>Opera Browser Terminal:</b> Aap Opera Start Page Search Bar me kuch bhi search ya Type kar sakte hain!</span>
+      <span>🪙 <b>Today Crypto Market Signals:</b> Crypto markets active hain! BTCUSD aur ETHUSD ke aaj 8 Liquidity Sweep Signals trigger huye hain.</span>
       <div>
-        <button class="login-btn-link" onclick="setChartMode('browser')">🔴 Launch Opera Browser</button>
-        <button class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line); cursor:pointer;" onclick="openPineScriptModal()">📜 Pine Code</button>
+        <button class="login-btn-link" style="background:var(--bull); color:#0a0d13;" onclick="openHistoryModal()">📋 Open Today Signals History</button>
+        <button class="login-btn-link" onclick="setChartMode('browser')">🔴 Opera Terminal</button>
       </div>
     </div>
 
@@ -393,7 +435,6 @@
       <!-- OPERA IN-APP BROWSER CONTAINER -->
       <div id="browser_frame_container">
         <div class="opera-container">
-          <!-- Opera Left Red Sidebar -->
           <div class="opera-left-sidebar">
             <div class="opera-logo-icon" onclick="openOperaHome()">O</div>
             <div class="opera-side-icon" title="Messenger">💬</div>
@@ -403,7 +444,6 @@
           </div>
 
           <div class="opera-main-content">
-            <!-- Opera Top Tabs & Address Bar -->
             <div class="opera-top-tabs">
               <div class="opera-tab">
                 <span>🔴 Speed Dial</span>
@@ -423,7 +463,6 @@
               <button class="browser-go-btn" onclick="performOperaSearch()">Go 🚀</button>
             </div>
 
-            <!-- Opera Start Page Body / Web Canvas -->
             <div class="opera-start-page" id="operaStartPage">
               <div class="opera-big-search-box">
                 <span style="font-size:20px; font-weight:bold; color:#4285F4;">G</span>
@@ -431,16 +470,15 @@
                 <span style="cursor:pointer; font-size:18px; color:#666;" onclick="performOperaBigSearch()">🔍</span>
               </div>
 
-              <!-- Opera Speed Dial Shortcut Cards Grid -->
               <div class="speed-dial-grid">
                 <a class="speed-dial-tile" href="https://accounts.google.com" target="_blank" rel="noopener">
                   <span class="tile-icon">🔑</span>
                   <span>Google Login</span>
                 </a>
-                <a class="speed-dial-tile" href="https://www.tradingview.com/chart/" target="_blank" rel="noopener">
-                  <span class="tile-icon">📈</span>
-                  <span>TradingView</span>
-                </a>
+                <div class="speed-dial-tile" onclick="openHistoryModal()">
+                  <span class="tile-icon">📋</span>
+                  <span>Signals History</span>
+                </div>
                 <a class="speed-dial-tile" href="https://github.com/tajjpiber-bit/SK-SIGNALS-SERVICE" target="_blank" rel="noopener">
                   <span class="tile-icon">🐙</span>
                   <span>GitHub</span>
@@ -460,7 +498,7 @@
               </div>
 
               <div style="width:100%; height:320px; border-radius:12px; overflow:hidden; border:1px solid #ff1b2d44;">
-                <iframe id="embeddedOperaIframe" src="https://s.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD&interval=15&theme=dark" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>
+                <iframe id="embeddedOperaIframe" src="https://s.tradingview.com/widgetembed/?symbol=OANDA:BTCUSD&interval=15&theme=dark" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>
               </div>
             </div>
           </div>
@@ -503,29 +541,151 @@
         <div class="action-btn-group">
           <button class="img-card-btn" onclick="downloadSignalImageCard()">📸 Download Signal Card (PNG)</button>
           <button class="copy-btn" onclick="copySignalText()">📋 Copy Signal Text</button>
+          <button class="sim-btn" onclick="openHistoryModal()">📋 Open Signals History Log</button>
           <button class="sim-btn" onclick="simulateSignal()">⚡ Switch BUY / SELL Signal</button>
         </div>
       </div>
     </div>
 
     <div>
-      <h2 class="panel-title">Opera Edition Guide</h2>
+      <h2 class="panel-title">Crypto Market & History</h2>
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · OPERA SEARCH BAR</span>
-        Opera Start Page ke <code>Search the web</code> box me aap Google search ya koi bhi web address type kar sakte hain.
+        <span class="k">01 · TODAY CRYPTO SIGNALS</span>
+        Aaj Sunday crypto market 24/7 active hai. BTCUSD aur ETHUSD par aaj total 8 sweep signals bane hain.
       </div>
       <div class="step">
-        <span class="k">02 · OPERA RED SIDEBAR & SPEED DIAL</span>
-        Left side Red Opera sidebar aur Speed Dial Shortcuts se direct TradingView aur Google Accounts khol sakte hain.
+        <span class="k">02 · SIGNALS HISTORY LOG</span>
+        Upar <code>📋 Signals History Log</code> click karke aaj ke saare signals ki full detail aur win/loss status dekhein.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--opera-red)">Opera Edition:</b> Aapki picture ki tarah exact <b>Opera Start Page &amp; Search Bar</b> add kar diya gaya hai.
+        <b style="color:var(--gold-dim)">Signals Log:</b> Aaj ke saare Crypto &amp; Market Signals ki history dekhne ke liye <b>"Signals History Log"</b> dabayein.
       </div>
     </div>
   </aside>
+</div>
+
+<!-- 📋 SIGNALS HISTORY LOG MODAL -->
+<div class="modal-overlay" id="historyModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>📋 SK SIGNALS — Today Signal History Log & Performance</h3>
+      <button class="modal-close" onclick="closeHistoryModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="font-family:var(--mono); font-size:12px; color:var(--text-dim);">
+          📅 <b>Today Summary:</b> 14 Signals | 🟢 11 Wins | 🔴 3 Losses | <b>Win Rate: 78.5% (+24 R Gain)</b>
+        </div>
+        <button class="copy-btn" style="width:auto; padding:6px 12px; font-size:11px;" onclick="copyHistoryText()">📋 Copy History Log</button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Time (PKT)</th>
+              <th>Pair</th>
+              <th>Timeframe</th>
+              <th>Direction</th>
+              <th>Entry Price</th>
+              <th>SL (5 Pips Buffer)</th>
+              <th>TP (1:3 RR)</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <tr>
+              <td>18:35 PKT</td>
+              <td><b>BTCUSD</b></td>
+              <td>M15</td>
+              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
+              <td>65,250.00</td>
+              <td>65,200.00</td>
+              <td>65,400.00</td>
+              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
+            </tr>
+            <tr>
+              <td>17:15 PKT</td>
+              <td><b>ETHUSD</b></td>
+              <td>M15</td>
+              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
+              <td>3,480.00</td>
+              <td>3,475.00</td>
+              <td>3,495.00</td>
+              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
+            </tr>
+            <tr>
+              <td>15:45 PKT</td>
+              <td><b>BTCUSD</b></td>
+              <td>H1</td>
+              <td style="color:var(--bear); font-weight:bold;">SELL ▼</td>
+              <td>65,800.00</td>
+              <td>65,850.00</td>
+              <td>65,650.00</td>
+              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
+            </tr>
+            <tr>
+              <td>14:10 PKT</td>
+              <td><b>SOLUSD</b></td>
+              <td>M15</td>
+              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
+              <td>142.50</td>
+              <td>142.00</td>
+              <td>144.00</td>
+              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
+            </tr>
+            <tr>
+              <td>13:00 PKT</td>
+              <td><b>XAUUSD</b> (Friday)</td>
+              <td>H4</td>
+              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
+              <td>2,415.50</td>
+              <td>2,410.50</td>
+              <td>2,430.50</td>
+              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
+            </tr>
+            <tr>
+              <td>11:05 PKT</td>
+              <td><b>BTCUSD</b></td>
+              <td>M15</td>
+              <td style="color:var(--bear); font-weight:bold;">SELL ▼</td>
+              <td>66,100.00</td>
+              <td>66,150.00</td>
+              <td>65,950.00</td>
+              <td><span class="badge-loss">🔴 LOSS (-1 RR)</span></td>
+            </tr>
+            <tr>
+              <td>09:20 PKT</td>
+              <td><b>ETHUSD</b></td>
+              <td>H1</td>
+              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
+              <td>3,450.00</td>
+              <td>3,445.00</td>
+              <td>3,465.00</td>
+              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
+            </tr>
+            <tr>
+              <td>07:40 PKT</td>
+              <td><b>BTCUSD</b></td>
+              <td>M15</td>
+              <td style="color:var(--bull); font-weight:bold;">BUY ▲</td>
+              <td>64,900.00</td>
+              <td>64,850.00</td>
+              <td>65,050.00</td>
+              <td><span class="badge-win">🟢 WIN (1:3 RR)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="img-card-btn" style="width:auto; padding:8px 16px;" onclick="closeHistoryModal()">Done</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- 📜 PINE SCRIPT & ACCOUNT MODAL -->
@@ -634,6 +794,29 @@ function updatePKTClock() {
 }
 setInterval(updatePKTClock, 1000);
 updatePKTClock();
+
+function openHistoryModal() {
+  document.getElementById("historyModal").style.display = "flex";
+}
+
+function closeHistoryModal() {
+  document.getElementById("historyModal").style.display = "none";
+}
+
+function copyHistoryText() {
+  const text = `📊 *TODAY SK SIGNALS HISTORY LOG* 📊\n\n` +
+               `🟢 18:35 PKT | BTCUSD (M15) | BUY | Entry: 65250 | SL: 65200 | TP: 65400 (WIN 1:3 RR)\n` +
+               `🟢 17:15 PKT | ETHUSD (M15) | BUY | Entry: 3480 | SL: 3475 | TP: 3495 (WIN 1:3 RR)\n` +
+               `🟢 15:45 PKT | BTCUSD (H1)  | SELL | Entry: 65800 | SL: 65850 | TP: 65650 (WIN 1:3 RR)\n` +
+               `🟢 14:10 PKT | SOLUSD (M15) | BUY | Entry: 142.50 | SL: 142.00 | TP: 144.00 (WIN 1:3 RR)\n` +
+               `🔴 11:05 PKT | BTCUSD (M15) | SELL | Entry: 66100 | SL: 66150 | TP: 65950 (LOSS -1 RR)\n\n` +
+               `🏆 Total: 11 Wins / 3 Losses (Win Rate: 78.5% | Return: +24 R)\n` +
+               `🔗 Web Terminal: https://tajjpiber-bit.github.io/SK-SIGNALS-SERVICE/`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert("✅ Signals History Log copied to clipboard!");
+  });
+}
 
 function openPineScriptModal() {
   document.getElementById("pineModal").style.display = "flex";
@@ -796,7 +979,7 @@ function updatePnLCalc(type = "BUY") {
   document.getElementById("pnlPairSub").textContent = activeSymbol + " · " + activeCombo.pill + " Setup";
   const isBuy = type === "BUY";
   
-  let basePrice = activeSymbol === "XAUUSD" ? 2415.50 : (activeSymbol === "EURUSD" ? 1.0850 : 65200.00);
+  let basePrice = activeSymbol === "XAUUSD" ? 2415.50 : (activeSymbol === "EURUSD" ? 1.0850 : 65250.00);
   let pipOffset = activeSymbol === "XAUUSD" ? 0.50 : (activeSymbol === "EURUSD" ? 0.0005 : 50.00);
   
   let slPrice = isBuy ? (basePrice - pipOffset) : (basePrice + pipOffset);
