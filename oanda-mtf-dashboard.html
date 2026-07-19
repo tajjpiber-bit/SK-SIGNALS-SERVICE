@@ -102,23 +102,34 @@
   /* ---------- Chart ---------- */
   .chart-area{ display:flex; flex-direction:column; min-width:0; }
   .chart-toolbar{
-    display:flex; justify-content:space-between; align-items:center; padding:10px 16px;
+    display:flex; justify-content:space-between; align-items:center; padding:8px 16px;
     border-bottom:1px solid var(--line); font-family:var(--mono); font-size:12px; color:var(--text-dim);
+    flex-wrap:wrap; gap:8px; background:var(--panel);
   }
-  .chart-toolbar .sym{ color:var(--text); font-size:14px; font-weight:600; }
+  .chart-toolbar .sym{ color:var(--text); font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
   .chart-toolbar .tag{ background:var(--panel-2); border:1px solid var(--line); padding:3px 8px; border-radius:5px; }
-  .chart-wrap{ flex:1; min-height:450px; position:relative; background:#000; }
+
+  .mode-switch-group{ display:flex; gap:4px; background:var(--panel-2); border:1px solid var(--line); padding:3px; border-radius:6px; }
+  .mode-btn{
+    background:transparent; border:none; color:var(--text-dim); font-family:var(--mono); font-size:11px;
+    padding:4px 10px; border-radius:4px; cursor:pointer; transition:.15s;
+  }
+  .mode-btn.active{ background:var(--gold); color:#0a0d13; font-weight:700; }
+  .mode-btn:not(.active):hover{ color:var(--text); }
+
+  .chart-wrap{ flex:1; min-height:460px; position:relative; background:#000; }
   .chart-wrap iframe{ width:100%; height:100%; border:0; }
-  .fallback-bar{
+
+  .login-banner{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:9px 16px; background:#1a1508; border-bottom:1px solid var(--line);
-    font-family:var(--mono); font-size:11.5px; color:#e8c96b; flex-wrap:wrap;
+    padding:9px 16px; background:linear-gradient(90deg, #161b25, #11151d); border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:11.5px; color:var(--text); flex-wrap:wrap;
   }
-  .fallback-bar a{
-    color:#0a0d13; background:var(--gold); text-decoration:none; padding:5px 10px;
-    border-radius:5px; font-weight:700; white-space:nowrap;
+  .login-banner .login-btn-link{
+    color:#0a0d13; background:var(--gold); text-decoration:none; padding:6px 12px;
+    border-radius:5px; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;
   }
-  .fallback-bar a:hover{ background:#e0bb2f; }
+  .login-banner .login-btn-link:hover{ background:#e0bb2f; }
 
   /* ---------- Right Panel ---------- */
   .right-panel{ border-left:1px solid var(--line); background:var(--panel); padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
@@ -225,15 +236,28 @@
 
   <main class="chart-area">
     <div class="chart-toolbar">
-      <div><span class="sym" id="symLabel">OANDA:XAUUSD</span></div>
-      <div class="tag" id="comboLabel">H4 Zone · M15 Chart</div>
+      <div class="sym">
+        <span id="symLabel">OANDA:XAUUSD</span>
+        <span class="tag" id="comboLabel">H4 Zone · M15 Chart</span>
+      </div>
+
+      <div class="mode-switch-group">
+        <button class="mode-btn active" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Widget View</button>
+        <button class="mode-btn" id="btnModeFull" onclick="setChartMode('full')">🔐 Full Web View (Login)</button>
+        <button class="mode-btn" onclick="openPopoutWindow()">🖥️ Desktop Popout</button>
+      </div>
     </div>
-    <div class="fallback-bar">
-      <span>Live TradingView OANDA Feed — View full screen or open directly on TradingView:</span>
-      <a id="tvDirectLink" href="#" target="_blank" rel="noopener">Open on TradingView.com ↗</a>
+
+    <div class="login-banner">
+      <span>🔑 <b>TradingView Account Login:</b> Log in to save custom indicators, Pine script alerts &amp; chart templates!</span>
+      <div>
+        <a class="login-btn-link" href="https://www.tradingview.com/accounts/signin/" target="_blank" rel="noopener">🔑 Sign In to TradingView ↗</a>
+        <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="tvDirectLink" href="#" target="_blank" rel="noopener">Open Chart ↗</a>
+      </div>
     </div>
+
     <div class="chart-wrap">
-      <iframe id="tvChart" src="" allowtransparency="true" scrolling="no"></iframe>
+      <iframe id="tvChart" src="" allow="fullscreen; clipboard-read; clipboard-write;" allowtransparency="true" scrolling="no"></iframe>
     </div>
   </main>
 
@@ -277,24 +301,24 @@
     </div>
 
     <div>
-      <h2 class="panel-title">Signal Guide</h2>
+      <h2 class="panel-title">TradingView Login & Setup</h2>
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · CANDLE CLOSE SIGNAL</span>
-        Signal is confirmed when candle closes. Entry is taken on candle close price.
+        <span class="k">01 · ACCOUNT LOGIN</span>
+        Upar <code>🔑 Sign In to TradingView</code> par click karke apna account login karein. Login ke baad aapki drawing &amp; templates save hongi.
       </div>
       <div class="step">
-        <span class="k">02 · SL BUFFER (5 PIPS)</span>
-        SL is set <code>5 pips</code> beyond the candle wick low (Buy) or high (Sell).
+        <span class="k">02 · FULL WEB VIEW vs WIDGET</span>
+        <code>🔐 Full Web View</code> mode select karne par TradingView ka poora web editor open hota hai jahan Pine Editor aur indicators edit kar sakte hain.
       </div>
       <div class="step">
-        <span class="k">03 · TAKE PROFIT (1:3 RR)</span>
-        TP is set exactly at <code>3x</code> the risk distance (1:3 Risk to Reward Ratio).
+        <span class="k">03 · DESKTOP POPOUT</span>
+        <code>🖥️ Desktop Popout</code> button se alag se full-screen window open hoti hai jahan aapka TradingView session always logged-in rahega.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--gold-dim)">Note:</b> 📸 "Download Signal Card" button daba kar aap HD Image download kar ke WhatsApp/Telegram par easily share kar sakte hain.
+        <b style="color:var(--gold-dim)">TradingView Login Guide:</b> Upar "Sign In to TradingView" dabakar apna account login karein. Agar aap TradingView ka poora chart Pine Editor ke saath run karna chahte hain toh <b>"🔐 Full Web View"</b> switch karein.
       </div>
     </div>
   </aside>
@@ -343,6 +367,8 @@ const COMBOS = [
 
 let activeSymbol = "XAUUSD";
 let activeCombo = COMBOS[0];
+let currentChartMode = "widget"; // "widget" or "full"
+
 let currentSignalType = "BUY";
 let currentEntryVal = "2415.50";
 let currentSlVal = "2410.50";
@@ -358,7 +384,10 @@ function updatePKTClock() {
 setInterval(updatePKTClock, 1000);
 updatePKTClock();
 
-function tvSrc(symbol, interval){
+function tvSrc(symbol, interval, mode = "widget"){
+  if (mode === "full") {
+    return "https://www.tradingview.com/chart/?symbol=OANDA%3A" + symbol + "&interval=" + interval;
+  }
   const params = new URLSearchParams({
     symbol: "OANDA:" + symbol,
     interval: interval,
@@ -376,6 +405,18 @@ function tvSrc(symbol, interval){
     locale: "en"
   });
   return "https://s.tradingview.com/widgetembed/?" + params.toString();
+}
+
+function setChartMode(mode) {
+  currentChartMode = mode;
+  document.getElementById("btnModeWidget").className = "mode-btn" + (mode === "widget" ? " active" : "");
+  document.getElementById("btnModeFull").className = "mode-btn" + (mode === "full" ? " active" : "");
+  document.getElementById("tvChart").src = tvSrc(activeSymbol, activeCombo.interval, mode);
+}
+
+function openPopoutWindow() {
+  const url = "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
+  window.open(url, "TradingViewTerminalWindow", "width=1380,height=850,resizable=yes,scrollbars=yes");
 }
 
 function renderSidebar(){
@@ -569,7 +610,7 @@ function renderAll(){
   document.getElementById("symLabel").textContent = "OANDA:" + activeSymbol;
   document.getElementById("comboLabel").textContent = activeCombo.label;
   document.getElementById("guideSub").textContent = activeCombo.label;
-  document.getElementById("tvChart").src = tvSrc(activeSymbol, activeCombo.interval);
+  document.getElementById("tvChart").src = tvSrc(activeSymbol, activeCombo.interval, currentChartMode);
   document.getElementById("tvDirectLink").href =
     "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
 }
