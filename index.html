@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>MTF BOX · OANDA Sweep Terminal & Live Signal Center</title>
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <style>
@@ -113,7 +116,7 @@
   .mode-switch-group{ display:flex; gap:4px; background:var(--panel-2); border:1px solid var(--line); padding:3px; border-radius:6px; }
   .mode-btn{
     background:transparent; border:none; color:var(--text-dim); font-family:var(--mono); font-size:11px;
-    padding:4px 10px; border-radius:4px; cursor:pointer; transition:.15s;
+    padding:4px 10px; border-radius:4px; cursor:pointer; transition:.15s; text-decoration:none; display:inline-flex; align-items:center; gap:4px;
   }
   .mode-btn.active{ background:var(--gold); color:#0a0d13; font-weight:700; }
   .mode-btn:not(.active):hover{ color:var(--text); }
@@ -245,7 +248,7 @@
       <div class="mode-switch-group">
         <button class="mode-btn active" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Real-Time Chart</button>
         <button class="mode-btn" id="btnModePro" onclick="setChartMode('pro')">🛠️ Full Drawing Tools</button>
-        <button class="mode-btn" style="color:var(--gold);" onclick="openFullWebViewTab()">🔐 Full Web View (Login) ↗</button>
+        <a class="mode-btn" style="color:var(--gold);" id="fullWebTabBtn" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15" target="_blank" rel="noopener">🔐 Full Web View (Login) ↗</a>
       </div>
     </div>
 
@@ -253,7 +256,7 @@
       <span>🔑 <b>TradingView Sign In:</b> Browser security ki waja se TradingView login hamesha new tab me open hota hai taake 100% login save rahe!</span>
       <div>
         <a class="login-btn-link" href="https://www.tradingview.com/accounts/signin/" target="_blank" rel="noopener">🔑 Sign In TradingView ↗</a>
-        <button class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line); cursor:pointer;" onclick="openFullWebViewTab()">Open Web Chart ↗</button>
+        <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="tvDirectLink" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15" target="_blank" rel="noopener">Open Web Chart ↗</a>
       </div>
     </div>
 
@@ -427,11 +430,6 @@ function setChartMode(mode) {
   document.getElementById("btnModeWidget").className = "mode-btn" + (mode === "widget" ? " active" : "");
   document.getElementById("btnModePro").className = "mode-btn" + (mode === "pro" ? " active" : "");
   loadTradingViewChart(activeSymbol, activeCombo.interval, mode);
-}
-
-function openFullWebViewTab() {
-  const url = "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
-  window.open(url, "_blank");
 }
 
 function renderSidebar(){
@@ -626,8 +624,10 @@ function renderAll(){
   document.getElementById("comboLabel").textContent = activeCombo.label;
   document.getElementById("guideSub").textContent = activeCombo.label;
   loadTradingViewChart(activeSymbol, activeCombo.interval, currentChartMode);
-  document.getElementById("tvDirectLink").href =
-    "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
+  
+  const fullUrl = "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
+  document.getElementById("tvDirectLink").href = fullUrl;
+  document.getElementById("fullWebTabBtn").href = fullUrl;
 }
 
 renderAll();
