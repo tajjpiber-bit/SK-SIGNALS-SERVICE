@@ -1,406 +1,249 @@
 //@version=5
-indicator("10-in-1 Strategy Matrix Dashboard & SMT", overlay=true)
+indicator("MTF BOX & Signals Terminal (1:3 RR + PnL Tracker + PK Time)", overlay=true, max_labels_count=500, max_lines_count=500, max_boxes_count=500)
 
 // =========================================================================
-// INPUTS & SETTINGS
+// 1. INPUTS & CONFIGURATION
 // =========================================================================
-grp_symbols = "Symbol Settings (Change to match your broker)"
+grp_risk = "Risk & PnL Settings (1:3 RR + Buffer)"
+pip_buffer = input.float(5.0, title="SL Buffer (Pips on Wick)", minval=0.0, step=0.5, group=grp_risk)
+rr_ratio   = input.float(3.0, title="Risk to Reward Ratio (1:X)", minval=1.0, step=0.5, group=grp_risk)
+show_pnl_box = input.bool(true, title="Draw Visual PnL Trade Box on Chart", group=grp_risk)
+show_price_labels = input.bool(true, title="Show Large Price Labels (Entry/SL/TP)", group=grp_risk)
+
+grp_symbols = "Symbol Multi-Monitor"
 sym1  = input.symbol("XAUUSD",    title="Symbol 1 - Gold", group=grp_symbols)
-sym2  = input.symbol("BTCUSDT",   title="Symbol 2 - Bitcoin", group=grp_symbols)
-sym3  = input.symbol("US100",     title="Symbol 3 - Nasdaq 100", group=grp_symbols)
+sym2  = input.symbol("BTCUSD",    title="Symbol 2 - Bitcoin", group=grp_symbols)
+sym3  = input.symbol("NAS100USD", title="Symbol 3 - Nasdaq 100", group=grp_symbols)
 sym4  = input.symbol("USDJPY",    title="Symbol 4 - USDJPY", group=grp_symbols)
 sym5  = input.symbol("GBPJPY",    title="Symbol 5 - GBPJPY", group=grp_symbols)
 sym6  = input.symbol("EURUSD",    title="Symbol 6 - EURUSD", group=grp_symbols)
 sym7  = input.symbol("GBPUSD",    title="Symbol 7 - GBPUSD", group=grp_symbols)
 sym8  = input.symbol("AUDUSD",    title="Symbol 8 - AUDUSD", group=grp_symbols)
-sym9  = input.symbol("USDCAD",    title="Symbol 9 - USDCAD", group=grp_symbols)
-sym10 = input.symbol("NZDUSD",    title="Symbol 10 - NZDUSD", group=grp_symbols)
-sym11 = input.symbol("US30",      title="Symbol 11 - Dow Jones", group=grp_symbols)
-sym12 = input.symbol("XAGUSD",    title="Symbol 12 - Silver (for SMT check)", group=grp_symbols)
 
-grp_config = "Signal & Alert Configuration"
-signal_threshold = input.int(7, title="Confluence Threshold (X/10)", minval=1, maxval=10, group=grp_config)
+grp_dash = "Dashboard Options"
+show_tracker_table = input.bool(true, title="Show Signal Stats & PnL Tracker", group=grp_dash)
+table_pos_input = input.string("top_right", title="Dashboard Position", options=["top_right", "top_left", "bottom_right", "bottom_left"], group=grp_dash)
 
-// Custom Emerald Green Color (since color.emerald is not a built-in TradingView color)
-color_emerald = color.rgb(16, 185, 129)
-
-grp_style = "Dashboard Style"
-table_pos_input = input.string("top_right", title="Dashboard Position", options=["top_right", "top_left", "bottom_right", "bottom_left"], group=grp_style)
-text_color_buy  = input.color(color_emerald, title="BUY Text Color", group=grp_style)
-text_color_sell = input.color(color.red, title="SELL Text Color", group=grp_style)
-text_color_neut = input.color(color.gray, title="NEUTRAL Text Color", group=grp_style)
-
-// Map position string to TradingView table position type
+// Position Mapping
 table_pos = table_pos_input == "top_left" ? position.top_left :
              table_pos_input == "bottom_left" ? position.bottom_left :
              table_pos_input == "bottom_right" ? position.bottom_right : position.top_right
 
 // =========================================================================
-// TIMEFRAME CALCULATOR & TEXT FORMATTER
+// 2. PIP VALUE CALCULATOR
 // =========================================================================
-f_tf_minutes() =>
-    timeframe.isminutes ? timeframe.multiplier : 
-     timeframe.isdaily ? 1440 : 
-     timeframe.isweekly ? 10080 : 
-     timeframe.ismonthly ? 43200 : 0
+f_pip_multiplier() =>
+    syminfo.mintick == 0.00001 ? 0.0001 :
+     syminfo.mintick == 0.001 ? 0.01 :
+     syminfo.mintick == 0.01 ? 0.1 :
+     syminfo.mintick == 0.1 ? 1.0 : syminfo.mintick
 
-tf_min = f_tf_minutes()
+pip_val = f_pip_multiplier()
+buffer_amount = pip_buffer * pip_val
 
-// Convert timeframe period to standard human readable string (e.g. 5m, 15m, 1h, 4h, 1D)
-tf_str = timeframe.isminutes ? (timeframe.multiplier >= 60 ? str.tostring(timeframe.multiplier / 60) + "h" : str.tostring(timeframe.multiplier) + "m") : 
-         timeframe.isdaily ? "1D" : 
-         timeframe.isweekly ? "1W" : 
-         timeframe.ismonthly ? "1M" : timeframe.period
+// Timeframe String
+tf_str = timeframe.isminutes ? (timeframe.multiplier >= 60 ? str.tostring(timeframe.multiplier / 60) + "H" : str.tostring(timeframe.multiplier) + "M") : 
+         timeframe.isdaily ? "1D" : timeframe.period
 
 // =========================================================================
-// CORE 10-STRATEGY EVALUATION FUNCTION
+// 3. CORE SIGNAL GENERATION ENGINE (MTF LIQUIDITY SWEEP & SWING REVERSAL)
 // =========================================================================
-f_calc_signals() =>
-    // --- Indicator Calculations ---
-    basis = ta.sma(close, 20)
-    dev = 2.0 * ta.stdev(close, 20)
-    upper_bb = basis + dev
-    lower_bb = basis - dev
-    ema5_high = ta.ema(high, 5)
-    ema5_low = ta.ema(low, 5)
-    ema10_close = ta.ema(close, 10)
-    ema9 = ta.ema(close, 9)
-    ema21 = ta.ema(close, 21)
-    ema50 = ta.ema(close, 50)
+f_calc_sweep_signals() =>
+    // Higher Timeframe Zone calculation
+    htf_tf = timeframe.isminutes and timeframe.multiplier <= 15 ? "240" : (timeframe.isminutes and timeframe.multiplier <= 60 ? "D" : "W")
+    htf_high = request.security(syminfo.tickerid, htf_tf, high[1])
+    htf_low  = request.security(syminfo.tickerid, htf_tf, low[1])
+
+    // Sweep Logic: Candle sweeps HTF High/Low & closes back inside
+    sweep_bull = (low < htf_low) and (close > htf_low) and (close > open)
+    sweep_bear = (high > htf_high) and (close < htf_high) and (close < open)
+
+    // Additional confirmation filter: Swing Reversal
+    swing_low_sweep = (low < ta.lowest(low, 5)[1]) and (close > open)
+    swing_high_sweep = (high > ta.highest(high, 5)[1]) and (close < open)
+
+    buy_sig  = (sweep_bull or swing_low_sweep) and barstate.isconfirmed
+    sell_sig = (sweep_bear or swing_high_sweep) and barstate.isconfirmed
+
+    [buy_sig, sell_sig]
+
+[is_buy_signal, is_sell_signal] = f_calc_sweep_signals()
+
+// =========================================================================
+// 4. DAILY TRACKER & PnL STATS ENGINE
+// =========================================================================
+var int today_signals = 0
+var int today_wins = 0
+var int today_losses = 0
+var int active_trades = 0
+
+// Active Trade State Variables
+var string active_dir = na
+var float active_entry = na
+var float active_sl = na
+var float active_tp = na
+var int active_signal_time = na
+var string active_signal_time_str = "-"
+
+// New Day Reset (PKT / Local UTC+5)
+if ta.change(time("D"))
+    today_signals := 0
+    today_wins := 0
+    today_losses := 0
+
+// Track Active Trade Status (Check Win / Loss)
+if not na(active_dir)
+    if active_dir == "BUY"
+        if high >= active_tp
+            today_wins := today_wins + 1
+            active_trades := math.max(0, active_trades - 1)
+            active_dir := na
+        else if low <= active_sl
+            today_losses := today_losses + 1
+            active_trades := math.max(0, active_trades - 1)
+            active_dir := na
+    else if active_dir == "SELL"
+        if low <= active_tp
+            today_wins := today_wins + 1
+            active_trades := math.max(0, active_trades - 1)
+            active_dir := na
+        else if high >= active_sl
+            today_losses := today_losses + 1
+            active_trades := math.max(0, active_trades - 1)
+            active_dir := na
+
+// Handle New Signals on Candle Close
+var float current_entry = na
+var float current_sl = na
+var float current_tp = na
+
+if is_buy_signal
+    today_signals := today_signals + 1
+    active_trades := 1
+    active_dir := "BUY"
+    current_entry := close
+    current_sl := low - buffer_amount
+    risk = current_entry - current_sl
+    current_tp := current_entry + (risk * rr_ratio)
+    active_entry := current_entry
+    active_sl := current_sl
+    active_tp := current_tp
+    active_signal_time := time
     
-    // --- 3-Candle Swing Points (Strategy 6) ---
-    is_swing_high = ta.highest(high, 3)[1] == high[1] and high[1] > high and high[1] > high[2]
-    is_swing_low = ta.lowest(low, 3)[1] == low[1] and low[1] < low and low[1] < low[2]
-    var float last_sh = na
-    var float last_sl = na
-    if is_swing_high
-        last_sh := high[1]
-    if is_swing_low
-        last_sl := low[1]
+    // Format PK Time (UTC+5)
+    pk_h = str.tostring(hour(time, "Asia/Karachi"), "00")
+    pk_m = str.tostring(minute(time, "Asia/Karachi"), "00")
+    active_signal_time_str := pk_h + ":" + pk_m + " PKT"
 
-    // --- Strategy 1: BBMA Complete ---
-    is_trend_buy = basis > ema50
-    is_trend_sell = basis < ema50
-    is_extreme_buy = close < lower_bb
-    is_extreme_sell = close > upper_bb
-    var bool ext_buy = false
-    var bool ext_sell = false
-    if is_extreme_buy
-        ext_buy := true
-        ext_sell := false
-    else if is_extreme_sell
-        ext_sell := true
-        ext_buy := false
-    is_mhv_buy = ext_buy and close > lower_bb and close < basis
-    is_mhv_sell = ext_sell and close < upper_bb and close > basis
-    is_reentry_buy = is_mhv_buy and (low <= ema5_low or low <= ema10_close)
-    is_reentry_sell = is_mhv_sell and (high >= ema5_high or high >= ema10_close)
-    s1_buy = is_trend_buy and is_reentry_buy ? 1 : 0
-    s1_sell = is_trend_sell and is_reentry_sell ? 1 : 0
-
-    // --- Strategy 2: CRT (Candle Range Theory) ---
-    crt_simple_buy = low < low[1] and close > low[1]
-    crt_simple_sell = high > high[1] and close < high[1]
-    // Scenario B: Mother Candle (4 Inside Bars)
-    var float mother_high = na
-    var float mother_low = na
-    var int inside_count = 0
-    if not na(mother_high) and high < mother_high and low > mother_low
-        inside_count := inside_count + 1
-    else
-        mother_high := high
-        mother_low := low
-        inside_count := 0
-    crt_mother_buy = (inside_count[1] >= 4) and (low < mother_low) and (close > mother_low)
-    crt_mother_sell = (inside_count[1] >= 4) and (high > mother_high) and (close < mother_high)
-    s2_buy = crt_simple_buy or crt_mother_buy ? 1 : 0
-    s2_sell = crt_simple_sell or crt_mother_sell ? 1 : 0
-
-    // --- Strategy 3: CISD ---
-    s3_buy = (is_trend_buy and close > open[1] and close[1] < open[1]) ? 1 : 0
-    s3_sell = (is_trend_sell and close < open[1] and close[1] > open[1]) ? 1 : 0
-
-    // --- Strategy 4: Previous Candle Sweep ---
-    s4_buy = crt_simple_buy ? 1 : 0
-    s4_sell = crt_simple_sell ? 1 : 0
-
-    // --- Strategy 5: ICT Wave Reversal (iFVG / OB) ---
-    bull_fvg = low > high[2]
-    bear_fvg = high < low[2]
-    var float active_bear_fvg_h = na
-    var float active_bull_fvg_l = na
-    if bear_fvg
-        active_bear_fvg_h := low[2]
-    if bull_fvg
-        active_bull_fvg_l := high[2]
-    if close > active_bear_fvg_h
-        active_bear_fvg_h := na
-    if close < active_bull_fvg_l
-        active_bull_fvg_l := na
-    ifvg_buy = (close > active_bear_fvg_h[1] and close[1] <= active_bear_fvg_h[1]) ? 1 : 0
-    ifvg_sell = (close < active_bull_fvg_l[1] and close[1] >= active_bull_fvg_l[1]) ? 1 : 0
-    s5_buy = ifvg_buy
-    s5_sell = ifvg_sell
-
-    // --- Strategy 6: 3-Candle Swing Sweep ---
-    s6_buy = (low < last_sl and close > last_sl) ? 1 : 0
-    s6_sell = (high > last_sh and close < last_sh) ? 1 : 0
-
-    // --- Strategy 7: CBDR Range ---
-    in_cbdr = not na(time(timeframe.period, "1330-2000:23456", "America/New_York"))
-    var float cbdr_h = na
-    var float cbdr_l = na
-    if in_cbdr
-        if not in_cbdr[1]
-            cbdr_h := high
-            cbdr_l := low
-        else
-            cbdr_h := math.max(cbdr_h, high)
-            cbdr_l := math.min(cbdr_l, low)
-    s7_buy = (low < cbdr_l and close > cbdr_l and not in_cbdr) ? 1 : 0
-    s7_sell = (high > cbdr_h and close < cbdr_h and not in_cbdr) ? 1 : 0
-
-    // --- Strategy 8: CRT Intraday (Time & Price) ---
-    var float t_3am_h = na, var float t_3am_l = na
-    var float t_8am_h = na, var float t_8am_l = na
-    var float t_9am_h = na, var float t_9am_l = na
-    is_3am = hour(time, "America/New_York") == 3 and minute(time, "America/New_York") == 0
-    is_8am = hour(time, "America/New_York") == 8 and minute(time, "America/New_York") == 0
-    is_9am = hour(time, "America/New_York") == 9 and minute(time, "America/New_York") == 0
-    if is_3am
-        t_3am_h := high
-        t_3am_l := low
-    if is_8am
-        t_8am_h := high
-        t_8am_l := low
-    if is_9am
-        t_9am_h := high
-        t_9am_l := low
-    if close > t_3am_h or close < t_3am_l
-        t_3am_h := na, t_3am_l := na
-    if close > t_8am_h or close < t_8am_l
-        t_8am_h := na, t_8am_l := na
-    if close > t_9am_h or close < t_9am_l
-        t_9am_h := na, t_9am_l := na
-    s8_buy = (low < t_3am_l and close > t_3am_l) or (low < t_8am_l and close > t_8am_l) or (low < t_9am_l and close > t_9am_l) ? 1 : 0
-    s8_sell = (high > t_3am_h and close < t_3am_h) or (high > t_8am_h and close < t_8am_h) or (high > t_9am_h and close < t_9am_h) ? 1 : 0
-
-    // --- Strategy 9: EMA Fan Alignment ---
-    s9_buy = (close > ema9 and ema9 > ema21 and ema21 > ema50) ? 1 : 0
-    s9_sell = (close < ema9 and ema9 < ema21 and ema21 < ema50) ? 1 : 0
-
-    // --- Strategy 10: Fibonacci OTE + Confluence ---
-    ote_buy = 0
-    ote_sell = 0
-    if not na(last_sl) and not na(last_sh) and last_sh > last_sl
-        fib_range = last_sh - last_sl
-        ote_l = last_sh - fib_range * 0.786
-        ote_h = last_sh - fib_range * 0.618
-        if low <= ote_h and low >= ote_l and (bull_fvg or is_swing_low)
-            ote_buy := 1
-        ote_l_s = last_sl + fib_range * 0.618
-        ote_h_s = last_sl + fib_range * 0.786
-        if high >= ote_l_s and high <= ote_h_s and (bear_fvg or is_swing_high)
-            ote_sell := 1
-    s10_buy = ote_buy
-    s10_sell = ote_sell
-
-    // --- Universal Conf Engine ---
-    is_engulfing_buy = close > open and close[1] < open[1] and (close - open) > (open[1] - close[1])
-    is_engulfing_sell = close < open and close[1] > open[1] and (open - close) > (close[1] - open[1])
-    has_conf_buy = is_engulfing_buy or is_swing_low or bull_fvg ? 1 : 0
-    has_conf_sell = is_engulfing_sell or is_swing_high or bear_fvg ? 1 : 0
-
-    total_buy = s1_buy + s2_buy + s3_buy + s4_buy + s5_buy + s6_buy + s7_buy + s8_buy + s9_buy + s10_buy
-    total_sell = s1_sell + s2_sell + s3_sell + s4_sell + s5_sell + s6_sell + s7_sell + s8_sell + s9_sell + s10_sell
-
-    score_buy = total_buy >= 1 and has_conf_buy == 1 ? total_buy : 0
-    score_sell = total_sell >= 1 and has_conf_sell == 1 ? total_sell : 0
-
-    // Construct active strategy strings
-    str_b = ""
-    str_b := s1_buy == 1 ? str_b + "S1 " : str_b
-    str_b := s2_buy == 1 ? str_b + "S2 " : str_b
-    str_b := s3_buy == 1 ? str_b + "S3 " : str_b
-    str_b := s4_buy == 1 ? str_b + "S4 " : str_b
-    str_b := s5_buy == 1 ? str_b + "S5 " : str_b
-    str_b := s6_buy == 1 ? str_b + "S6 " : str_b
-    str_b := s7_buy == 1 ? str_b + "S7 " : str_b
-    str_b := s8_buy == 1 ? str_b + "S8 " : str_b
-    str_b := s9_buy == 1 ? str_b + "S9 " : str_b
-    str_b := s10_buy == 1 ? str_b + "S10" : str_b
-
-    str_s = ""
-    str_s := s1_sell == 1 ? str_s + "S1 " : str_s
-    str_s := s2_sell == 1 ? str_s + "S2 " : str_s
-    str_s := s3_sell == 1 ? str_s + "S3 " : str_s
-    str_s := s4_sell == 1 ? str_s + "S4 " : str_s
-    str_s := s5_sell == 1 ? str_s + "S5 " : str_s
-    str_s := s6_sell == 1 ? str_s + "S6 " : str_s
-    str_s := s7_sell == 1 ? str_s + "S7 " : str_s
-    str_s := s8_sell == 1 ? str_s + "S8 " : str_s
-    str_s := s9_sell == 1 ? str_s + "S9 " : str_s
-    str_s := s10_sell == 1 ? str_s + "S10" : str_s
-
-    str_b_clean = str.replace_all(str.trim(str_b), " ", ",")
-    str_s_clean = str.replace_all(str.trim(str_s), " ", ",")
+else if is_sell_signal
+    today_signals := today_signals + 1
+    active_trades := 1
+    active_dir := "SELL"
+    current_entry := close
+    current_sl := high + buffer_amount
+    risk = current_sl - current_entry
+    current_tp := current_entry - (risk * rr_ratio)
+    active_entry := current_entry
+    active_sl := current_sl
+    active_tp := current_tp
+    active_signal_time := time
     
-    active_str = score_buy > score_sell ? str_b_clean : (score_sell > score_buy ? str_s_clean : "None")
-
-    [float(score_buy), float(score_sell), float(last_sl), float(last_sh), active_str]
-
-// =========================================================================
-// SECURITY TUPLE FETCH ENGINE (FOR MULTI-PAIR MONITORING)
-// =========================================================================
-[s1_b, s1_s, s1_sl, s1_sh, s1_act] = request.security(sym1, timeframe.period, f_calc_signals())
-[s2_b, s2_s, s2_sl, s2_sh, s2_act] = request.security(sym2, timeframe.period, f_calc_signals())
-[s3_b, s3_s, s3_sl, s3_sh, s3_act] = request.security(sym3, timeframe.period, f_calc_signals())
-[s4_b, s4_s, s4_sl, s4_sh, s4_act] = request.security(sym4, timeframe.period, f_calc_signals())
-[s5_b, s5_s, s5_sl, s5_sh, s5_act] = request.security(sym5, timeframe.period, f_calc_signals())
-[s6_b, s6_s, s6_sl, s6_sh, s6_act] = request.security(sym6, timeframe.period, f_calc_signals())
-[s7_b, s7_s, s7_sl, s7_sh, s7_act] = request.security(sym7, timeframe.period, f_calc_signals())
-[s8_b, s8_s, s8_sl, s8_sh, s8_act] = request.security(sym8, timeframe.period, f_calc_signals())
-[s9_b, s9_s, s9_sl, s9_sh, s9_act] = request.security(sym9, timeframe.period, f_calc_signals())
-[s10_b, s10_s, s10_sl, s10_sh, s10_act] = request.security(sym10, timeframe.period, f_calc_signals())
-[s11_b, s11_s, s11_sl, s11_sh, s11_act] = request.security(sym11, timeframe.period, f_calc_signals())
-[s12_b, s12_s, s12_sl, s12_sh, s12_act] = request.security(sym12, timeframe.period, f_calc_signals())
+    // Format PK Time (UTC+5)
+    pk_h = str.tostring(hour(time, "Asia/Karachi"), "00")
+    pk_m = str.tostring(minute(time, "Asia/Karachi"), "00")
+    active_signal_time_str := pk_h + ":" + pk_m + " PKT"
 
 // =========================================================================
-// XAUUSD / XAGUSD SMT DIVERGENCE DETECTION
+// 5. VISUAL PnL BOX & BIG PRICE LABELS ON CHART
 // =========================================================================
-var float prev_xau_sl = na, var float curr_xau_sl = na
-var float prev_xag_sl = na, var float curr_xag_sl = na
-var float prev_xau_sh = na, var float curr_xau_sh = na
-var float prev_xag_sh = na, var float curr_xag_sh = na
-
-if not na(s1_sl) and s1_sl != s1_sl[1]
-    prev_xau_sl := curr_xau_sl
-    curr_xau_sl := s1_sl
-if not na(s1_sh) and s1_sh != s1_sh[1]
-    prev_xau_sh := curr_xau_sh
-    curr_xau_sh := s1_sh
-
-if not na(s12_sl) and s12_sl != s12_sl[1]
-    prev_xag_sl := curr_xag_sl
-    curr_xag_sl := s12_sl
-if not na(s12_sh) and s12_sh != s12_sh[1]
-    prev_xag_sh := curr_xag_sh
-    curr_xag_sh := s12_sh
-
-// Bullish SMT: One makes lower low, the other makes higher low
-bullish_smt = (curr_xau_sl < prev_xau_sl and curr_xag_sl > prev_xag_sl) or (curr_xag_sl < prev_xag_sl and curr_xau_sl > prev_xag_sl)
-// Bearish SMT: One makes higher high, the other makes lower high
-bearish_smt = (curr_xau_sh > prev_xau_sh and curr_xag_sh < prev_xag_sh) or (curr_xag_sh > prev_xag_sh and curr_xau_sh < prev_xag_sh)
-
-smt_status = bullish_smt ? "Bullish SMT" : (bearish_smt ? "Bearish SMT" : "None")
-
-// =========================================================================
-// RUN TIMEFRAME FILTERS AND ASSIGN SIGNALS
-// =========================================================================
-f_eval_final(score_b, score_s, act_str, is_xau) =>
-    tf_limit_ok = true
-    if not tf_limit_ok
-        [0.0, 0.0, "Low TF Filtered", "-"]
-    else
-        score = score_b > score_s ? score_b : score_s
-        dir_text = score_b > score_s ? "BUY" : (score_s > score_b ? "SELL" : "NEUTRAL")
-        final_act = score > 0 ? act_str : "-"
-        [score, score, dir_text, final_act]
-
-[gold_score, _, gold_dir, gold_act] = f_eval_final(s1_b, s1_s, s1_act, true)
-[btc_score, _, btc_dir, btc_act]   = f_eval_final(s2_b, s2_s, s2_act, false)
-[nas_score, _, nas_dir, nas_act]   = f_eval_final(s3_b, s3_s, s3_act, false)
-[uj_score, _, uj_dir, uj_act]     = f_eval_final(s4_b, s4_s, s4_act, false)
-[gj_score, _, gj_dir, gj_act]     = f_eval_final(s5_b, s5_s, s5_act, false)
-[eu_score, _, eu_dir, eu_act]     = f_eval_final(s6_b, s6_s, s6_act, false)
-[gu_score, _, gu_dir, gu_act]     = f_eval_final(s7_b, s7_s, s7_act, false)
-[au_score, _, au_dir, au_act]     = f_eval_final(s8_b, s8_s, s8_act, false)
-[uc_score, _, uc_dir, uc_act]     = f_eval_final(s9_b, s9_s, s9_act, false)
-[nu_score, _, nu_dir, nu_act]     = f_eval_final(s10_b, s10_s, s10_act, false)
-[us30_score, _, us30_dir, us30_act] = f_eval_final(s11_b, s11_s, s11_act, false)
-[silv_score, _, silv_dir, silv_act] = f_eval_final(s12_b, s12_s, s12_act, false)
-
-// Enforce mandatory SMT verification for XAUUSD (Gold)
-gold_smt_ok = (gold_dir == "BUY" and bullish_smt) or (gold_dir == "SELL" and bearish_smt)
-adjusted_gold_score = gold_smt_ok ? math.min(10.0, gold_score + 1.0) : gold_score // Boost score if SMT is aligned
-gold_smt_label = (gold_dir == "BUY" or gold_dir == "SELL") ? (gold_smt_ok ? "⚡ Valid SMT" : "⚠️ Pending SMT") : "None"
-
-// =========================================================================
-// DRAW PREMIUM DASHBOARD TABLE
-// =========================================================================
-// Changed columns count from 6 to 7 to support a dedicated "Triggered Rules" column
-var table info_table = table.new(table_pos, 7, 14, bgcolor=color.new(color.black, 15), border_width=1, border_color=color.gray)
-
-f_draw_row(r_idx, name, score, dir, smt_lbl, pair_tf, act_rules) =>
-    conf_pct = score * 10.0
-    is_strong = score >= signal_threshold
+if is_buy_signal and show_pnl_box
+    // Draw Entry, SL, TP Lines
+    line.new(bar_index, current_entry, bar_index + 15, current_entry, color=color.yellow, width=2, style=line.style_dashed)
+    line.new(bar_index, current_sl, bar_index + 15, current_sl, color=color.red, width=2)
+    line.new(bar_index, current_tp, bar_index + 15, current_tp, color=color.green, width=2)
     
-    // Rows text format
-    text_dir = dir
-    text_score = str.tostring(score, "#") + "/10"
-    text_conf = str.tostring(conf_pct, "#") + "%"
-    
-    // Choose colors
-    c_text = dir == "BUY" ? text_color_buy : (dir == "SELL" ? text_color_sell : text_color_neut)
-    c_bg = is_strong ? (dir == "BUY" ? color.new(color_emerald, 75) : color.new(color.red, 75)) : color.new(color.black, 30)
-    
-    table.cell(info_table, 0, r_idx, name, bgcolor=c_bg, text_color=color.white, text_size=size.small, text_halign=text.align_left)
-    table.cell(info_table, 1, r_idx, text_score, bgcolor=c_bg, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 2, r_idx, text_conf, bgcolor=c_bg, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 3, r_idx, text_dir, bgcolor=c_bg, text_color=c_text, text_size=size.small)
-    table.cell(info_table, 4, r_idx, pair_tf, bgcolor=c_bg, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 5, r_idx, act_rules, bgcolor=c_bg, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 6, r_idx, smt_lbl, bgcolor=c_bg, text_color=color.white, text_size=size.small)
+    // Fill Boxes for TP & SL
+    box.new(bar_index, current_tp, bar_index + 15, current_entry, bgcolor=color.new(color.green, 85), border_color=color.green)
+    box.new(bar_index, current_entry, bar_index + 15, current_sl, bgcolor=color.new(color.red, 85), border_color=color.red)
 
-if barstate.islast
-    // Draw Header Row
-    table.cell(info_table, 0, 0, "Symbol", bgcolor=color.navy, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 1, 0, "Confluence", bgcolor=color.navy, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 2, 0, "Confidence", bgcolor=color.navy, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 3, 0, "Direction", bgcolor=color.navy, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 4, 0, "TF", bgcolor=color.navy, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 5, 0, "Active Rules", bgcolor=color.navy, text_color=color.white, text_size=size.small)
-    table.cell(info_table, 6, 0, "SMT Status", bgcolor=color.navy, text_color=color.white, text_size=size.small)
+    if show_price_labels
+        txt_info = "🟢 BUY SIGNAL (1:" + str.tostring(rr_ratio, "#") + " RR)\n" +
+                   "🎯 ENTRY: " + str.tostring(current_entry, "#.#####") + "\n" +
+                   "🛑 SL (-" + str.tostring(pip_buffer, "#.#") + " pips): " + str.tostring(current_sl, "#.#####") + "\n" +
+                   "🎯 TP (1:3): " + str.tostring(current_tp, "#.#####")
+        label.new(bar_index, high + (buffer_amount * 2), txt_info, color=color.rgb(16, 185, 129), textcolor=color.white, style=label.style_label_down, size=size.medium)
 
-    // Populate rows
-    f_draw_row(1,  "XAUUSD",  adjusted_gold_score, gold_dir, gold_smt_label, tf_str, gold_act)
-    f_draw_row(2,  "BTCUSDT", btc_score,          btc_dir,  "N/A", tf_str, btc_act)
-    f_draw_row(3,  "NAS100",  nas_score,          nas_dir,  "N/A", tf_str, nas_act)
-    f_draw_row(4,  "USDJPY",  uj_score,           uj_dir,   "N/A", tf_str, uj_act)
-    f_draw_row(5,  "GBPJPY",  gj_score,           gj_dir,   "N/A", tf_str, gj_act)
-    f_draw_row(6,  "EURUSD",  eu_score,           eu_dir,   "N/A", tf_str, eu_act)
-    f_draw_row(7,  "GBPUSD",  gu_score,           gu_dir,   "N/A", tf_str, gu_act)
-    f_draw_row(8,  "AUDUSD",  au_score,           au_dir,   "N/A", tf_str, au_act)
-    f_draw_row(9,  "USDCAD",  uc_score,           uc_dir,   "N/A", tf_str, uc_act)
-    f_draw_row(10, "NZDUSD",  nu_score,           nu_dir,   "N/A", tf_str, nu_act)
-    f_draw_row(11, "US30",    us30_score,         us30_dir, "N/A", tf_str, us30_act)
-    f_draw_row(12, "XAGUSD",  silv_score,         silv_dir, smt_status, tf_str, silv_act)
+if is_sell_signal and show_pnl_box
+    // Draw Entry, SL, TP Lines
+    line.new(bar_index, current_entry, bar_index + 15, current_entry, color=color.yellow, width=2, style=line.style_dashed)
+    line.new(bar_index, current_sl, bar_index + 15, current_sl, color=color.red, width=2)
+    line.new(bar_index, current_tp, bar_index + 15, current_tp, color=color.green, width=2)
+    
+    // Fill Boxes for TP & SL
+    box.new(bar_index, current_entry, bar_index + 15, current_tp, bgcolor=color.new(color.green, 85), border_color=color.green)
+    box.new(bar_index, current_sl, bar_index + 15, current_entry, bgcolor=color.new(color.red, 85), border_color=color.red)
+
+    if show_price_labels
+        txt_info = "🚨 SELL SIGNAL (1:" + str.tostring(rr_ratio, "#") + " RR)\n" +
+                   "🎯 ENTRY: " + str.tostring(current_entry, "#.#####") + "\n" +
+                   "🛑 SL (+" + str.tostring(pip_buffer, "#.#") + " pips): " + str.tostring(current_sl, "#.#####") + "\n" +
+                   "🎯 TP (1:3): " + str.tostring(current_tp, "#.#####")
+        label.new(bar_index, low - (buffer_amount * 2), txt_info, color=color.red, textcolor=color.white, style=label.style_label_up, size=size.medium)
+
+// Plot Shapes
+plotshape(is_buy_signal,  title="BUY Signal Arrow",  style=shape.triangleup,   location=location.belowbar, color=color.green, size=size.large)
+plotshape(is_sell_signal, title="SELL Signal Arrow", style=shape.triangledown, location=location.abovebar, color=color.red,   size=size.large)
 
 // =========================================================================
-// VISUAL SIGNAL PLOTTING & ALERTS
+// 6. STATS & PnL TRACKER DASHBOARD TABLE (ON CHART)
 // =========================================================================
-current_sym = syminfo.tickerid
-is_gold_chart = (current_sym == sym1)
+var table stats_table = table.new(table_pos, 2, 7, bgcolor=color.new(color.black, 15), border_width=1, border_color=color.gray)
 
-[c_score_b, c_score_s, _, _, c_act] = f_calc_signals()
-[c_score, _, c_dir, c_final_act] = f_eval_final(c_score_b, c_score_s, c_act, is_gold_chart)
+if barstate.islast and show_tracker_table
+    // Table Header
+    table.cell(stats_table, 0, 0, "SK SIGNAL DASHBOARD", 0, 0, bgcolor=color.navy, text_color=color.white, text_size=size.normal)
+    table.cell(stats_table, 1, 0, tf_str + " | PK TIME", 0, 0, bgcolor=color.navy, text_color=color.gold, text_size=size.normal)
 
-// Adjust gold score for local chart plot
-local_score = c_score
-if is_gold_chart
-    local_smt_ok = (c_dir == "BUY" and bullish_smt) or (c_dir == "SELL" and bearish_smt)
-    if local_smt_ok
-        local_score := math.min(10.0, c_score + 1.0)
+    // Row 1: Today's Total Signals
+    table.cell(stats_table, 0, 1, "📅 Today Total Signals", bgcolor=color.new(color.black, 30), text_color=color.white, text_size=size.small, text_halign=text.align_left)
+    table.cell(stats_table, 1, 1, str.tostring(today_signals), bgcolor=color.new(color.black, 30), text_color=color.white, text_size=size.small)
 
-is_alert_buy  = (c_dir == "BUY"  and local_score >= signal_threshold) and (is_gold_chart ? gold_smt_ok : true)
-is_alert_sell = (c_dir == "SELL" and local_score >= signal_threshold) and (is_gold_chart ? gold_smt_ok : true)
+    // Row 2: Active / Running Signals
+    c_act_bg = active_trades > 0 ? (active_dir == "BUY" ? color.new(color.green, 70) : color.new(color.red, 70)) : color.new(color.black, 30)
+    act_status_text = active_trades > 0 ? active_dir + " (Running)" : "None"
+    table.cell(stats_table, 0, 2, "⚡ Active Signals Now", bgcolor=c_act_bg, text_color=color.white, text_size=size.small, text_halign=text.align_left)
+    table.cell(stats_table, 1, 2, act_status_text, bgcolor=c_act_bg, text_color=color.white, text_size=size.small)
 
-plotshape(is_alert_buy,  title="BUY Signal",  style=shape.triangleup,   location=location.belowbar, color=color.green, size=size.normal)
-plotshape(is_alert_sell, title="SELL Signal", style=shape.triangledown, location=location.abovebar, color=color.red,   size=size.normal)
+    // Row 3: Wins / Losses Count Today
+    win_loss_text = "🟢 " + str.tostring(today_wins) + " Win  |  🔴 " + str.tostring(today_losses) + " Loss"
+    table.cell(stats_table, 0, 3, "🏆 Today Win / Loss", bgcolor=color.new(color.black, 30), text_color=color.white, text_size=size.small, text_halign=text.align_left)
+    table.cell(stats_table, 1, 3, win_loss_text, bgcolor=color.new(color.black, 30), text_color=color.white, text_size=size.small)
 
-// Alert triggers with Timeframe and Triggered Strategies included
-if is_alert_buy and ta.change(time)
-    alert("🔥 STRONG BUY SIGNAL: " + syminfo.ticker + " (" + tf_str + ") at " + str.tostring(close) + " | Rules: " + c_final_act + " | Confidence: " + str.tostring(local_score*10) + "% | SMT: " + (is_gold_chart ? gold_smt_label : "N/A"), alert.freq_once_per_bar_close)
+    // Row 4: Last Signal Time (PK Time)
+    table.cell(stats_table, 0, 4, "⏰ Last Signal Time", bgcolor=color.new(color.black, 30), text_color=color.white, text_size=size.small, text_halign=text.align_left)
+    table.cell(stats_table, 1, 4, active_signal_time_str, bgcolor=color.new(color.black, 30), text_color=color.gold, text_size=size.small)
 
-if is_alert_sell and ta.change(time)
-    alert("🚨 STRONG SELL SIGNAL: " + syminfo.ticker + " (" + tf_str + ") at " + str.tostring(close) + " | Rules: " + c_final_act + " | Confidence: " + str.tostring(local_score*10) + "% | SMT: " + (is_gold_chart ? gold_smt_label : "N/A"), alert.freq_once_per_bar_close)
+    // Row 5: Risk Reward Ratio & SL Buffer
+    table.cell(stats_table, 0, 5, "🎯 Strategy RR / Buffer", bgcolor=color.new(color.black, 30), text_color=color.white, text_size=size.small, text_halign=text.align_left)
+    table.cell(stats_table, 1, 5, "1:3 RR (" + str.tostring(pip_buffer, "#.#") + " Pips SL)", bgcolor=color.new(color.black, 30), text_color=color.white, text_size=size.small)
+
+// =========================================================================
+// 7. ALERTS (WITH SL, TP, PnL & PK TIME)
+// =========================================================================
+if is_buy_signal
+    msg = "🟢 SK SIGNAL (BUY)\n" +
+          "Pair: " + syminfo.ticker + " (" + tf_str + ")\n" +
+          "Entry: " + str.tostring(current_entry, "#.#####") + "\n" +
+          "SL (5 Pips Buffer): " + str.tostring(current_sl, "#.#####") + "\n" +
+          "TP (1:3 RR): " + str.tostring(current_tp, "#.#####") + "\n" +
+          "Time: " + active_signal_time_str
+    alert(msg, alert.freq_once_per_bar_close)
+
+if is_sell_signal
+    msg = "🚨 SK SIGNAL (SELL)\n" +
+          "Pair: " + syminfo.ticker + " (" + tf_str + ")\n" +
+          "Entry: " + str.tostring(current_entry, "#.#####") + "\n" +
+          "SL (5 Pips Buffer): " + str.tostring(current_sl, "#.#####") + "\n" +
+          "TP (1:3 RR): " + str.tostring(current_tp, "#.#####") + "\n" +
+          "Time: " + active_signal_time_str
+    alert(msg, alert.freq_once_per_bar_close)
