@@ -136,6 +136,13 @@
   }
   .fs-toggle-btn:hover{ opacity:0.9; transform:scale(1.02); }
 
+  .pine-modal-btn{
+    background:var(--panel-2); border:1px solid var(--gold); color:var(--gold);
+    font-family:var(--mono); font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:6px;
+    cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .pine-modal-btn:hover{ background:var(--gold); color:#0a0d13; }
+
   .chart-wrap{ flex:1; min-height:480px; position:relative; background:#000; }
   #tv_chart_container{ width:100%; height:100%; min-height:480px; }
 
@@ -149,6 +156,32 @@
     border-radius:5px; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;
   }
   .login-banner .login-btn-link:hover{ background:#e0bb2f; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; top:0; left:0; width:100vw; height:100vh;
+    background:rgba(10,13,19,0.85); backdrop-filter:blur(6px);
+    z-index:9999999; display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-card{
+    background:var(--panel); border:1px solid var(--gold); border-radius:12px;
+    width:100%; max-width:850px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;
+    box-shadow:0 0 30px rgba(201,162,39,0.2);
+  }
+  .modal-header{
+    padding:16px 20px; border-bottom:1px solid var(--line); background:var(--panel-2);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .modal-header h3{ margin:0; font-size:15px; color:var(--gold); font-family:var(--mono); display:flex; align-items:center; gap:8px; }
+  .modal-close{ background:transparent; border:none; color:var(--text-dim); font-size:20px; cursor:pointer; }
+  .modal-close:hover{ color:var(--text); }
+  
+  .modal-body{ padding:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:14px; }
+  
+  .code-area{
+    width:100%; height:320px; background:#06080c; border:1px solid var(--line); border-radius:6px;
+    color:var(--bull); font-family:var(--mono); font-size:12px; padding:14px; outline:none; resize:none;
+  }
 
   /* ---------- Right Panel ---------- */
   .right-panel{ border-left:1px solid var(--line); background:var(--panel); padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:16px; }
@@ -219,6 +252,7 @@
     </div>
   </div>
   <div class="header-right">
+    <button class="pine-modal-btn" onclick="openPineScriptModal()">📜 Pine Script Editor & Code</button>
     <div class="pkt-clock">
       <span class="pulse"></span>
       <span id="pktClockDisplay">--:--:-- PKT</span>
@@ -260,7 +294,7 @@
         <span class="tag" id="comboLabel">H4 Zone · M15 Chart</span>
       </div>
 
-      <div style="display:flex; align-items:center; gap:8px;">
+      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
         <button class="fs-toggle-btn" onclick="toggleFullscreenChart()">
           <span id="fsBtnText">🖥️ Full Web View (Inside Website)</span>
         </button>
@@ -273,10 +307,10 @@
     </div>
 
     <div class="login-banner">
-      <span>🖥️ <b>Full Web View Inside Website:</b> Upar "Full Web View" button dabane par poora chart website me hi full-screen ho jayega!</span>
+      <span>📜 <b>Pine Script & Account Sync:</b> Apni Pine Script dekhne aur edit karne ke liye <code>"📜 Pine Script Editor"</code> click karein ya TradingView sign in karein.</span>
       <div>
-        <a class="login-btn-link" href="https://www.tradingview.com/accounts/signin/" target="_blank" rel="noopener">🔑 Sign In TradingView ↗</a>
-        <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="fullWebTabBtn" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15" target="_blank" rel="noopener">TradingView Site ↗</a>
+        <button class="login-btn-link" onclick="openPineScriptModal()">📜 Open Pine Editor Code</button>
+        <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="fullWebTabBtn" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15" target="_blank" rel="noopener">TradingView Account ↗</a>
       </div>
     </div>
 
@@ -325,23 +359,70 @@
     </div>
 
     <div>
-      <h2 class="panel-title">Full Web View Guide</h2>
+      <h2 class="panel-title">Pine Script & Login Guide</h2>
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · FULL WEB VIEW INSIDE WEBSITE</span>
-        Upar golden button <code>🖥️ Full Web View (Inside Website)</code> par click karke aap isi website par poora TradingView chart full screen kar sakte hain.
+        <span class="k">01 · PINE SCRIPT EDITOR IN WEBSITE</span>
+        Upar top-right par <code>📜 Pine Script Editor & Code</code> click karke aap MTF BOX indicator ka poora v5 Pine script dekh, edit, aur copy kar sakte hain.
       </div>
       <div class="step">
-        <span class="k">02 · DRAWING TOOLS & INDICATORS</span>
-        Left side par poori Drawing Toolbar (Trendlines, Fibonacci, Shapes, Text) enabled hai jo aap chart par draw kar sakte hain.
+        <span class="k">02 · FULL WEB VIEW INSIDE WEBSITE</span>
+        <code>🖥️ Full Web View (Inside Website)</code> par click karke aap isi website par poora chart 100% full screen kar sakte hain.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--gold-dim)">Solution:</b> Ab aap <b>"Full Web View (Inside Website)"</b> button dabakar isi website ke andar bina kisi block error ke poora TradingView chart full-screen screen par chala sakte hain!
+        <b style="color:var(--gold-dim)">Script & Account Access:</b> Aap <b>"📜 Pine Script Editor"</b> button dabakar apni script ka poora code yahan dekh aur edit kar sakte hain.
       </div>
     </div>
   </aside>
+</div>
+
+<!-- 📜 PINE SCRIPT & ACCOUNT MODAL -->
+<div class="modal-overlay" id="pineModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>📜 SK MTF BOX — Pine Script v5 Editor & Code Viewer</h3>
+      <button class="modal-close" onclick="closePineScriptModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-family:var(--mono); font-size:12px; color:var(--text-dim);">
+        Aap niche diye gaye Pine Script code ko copy karke TradingView ke Pine Editor me "Add to Chart" kar sakte hain:
+      </div>
+      <textarea class="code-area" id="pineCodeTextarea" readonly>
+//@version=5
+indicator("MTF BOX & Signals Terminal (1:3 RR + PnL Tracker + PK Time)", overlay=true, max_labels_count=500, max_lines_count=500, max_boxes_count=500)
+
+// Risk & PnL Settings
+pip_buffer = input.float(5.0, title="SL Buffer (Pips on Wick)")
+rr_ratio   = input.float(3.0, title="Risk to Reward Ratio (1:X)")
+
+// Pip Calculator
+pip_val = syminfo.mintick == 0.00001 ? 0.0001 : (syminfo.mintick == 0.001 ? 0.01 : (syminfo.mintick == 0.01 ? 0.1 : 1.0))
+buffer_amount = pip_buffer * pip_val
+
+// Multi-Timeframe Liquidity Sweep Engine
+htf_tf = timeframe.isminutes and timeframe.multiplier <= 15 ? "240" : (timeframe.isminutes and timeframe.multiplier <= 60 ? "D" : "W")
+htf_high = request.security(syminfo.tickerid, htf_tf, high[1])
+htf_low  = request.security(syminfo.tickerid, htf_tf, low[1])
+
+sweep_bull = (low < htf_low) and (close > htf_low) and (close > open)
+sweep_bear = (high > htf_high) and (close < htf_high) and (close < open)
+
+buy_sig  = sweep_bull and barstate.isconfirmed
+sell_sig = sweep_bear and barstate.isconfirmed
+
+// Plot Signals
+plotshape(buy_sig,  title="BUY Signal",  style=shape.triangleup,   location=location.belowbar, color=color.green, size=size.large)
+plotshape(sell_sig, title="SELL Signal", style=shape.triangledown, location=location.abovebar, color=color.red,   size=size.large)
+      </textarea>
+      
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button class="copy-btn" style="width:auto; padding:8px 16px;" onclick="copyPineCode()">📋 Copy Pine Script Code</button>
+        <button class="img-card-btn" style="width:auto; padding:8px 16px;" onclick="closePineScriptModal()">Done</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <footer>
@@ -403,6 +484,21 @@ function updatePKTClock() {
 }
 setInterval(updatePKTClock, 1000);
 updatePKTClock();
+
+function openPineScriptModal() {
+  document.getElementById("pineModal").style.display = "flex";
+}
+
+function closePineScriptModal() {
+  document.getElementById("pineModal").style.display = "none";
+}
+
+function copyPineCode() {
+  const textarea = document.getElementById("pineCodeTextarea");
+  textarea.select();
+  document.execCommand("copy");
+  alert("✅ Pine Script Code Copied! Aap ab isey TradingView Pine Editor me paste kar sakte hain.");
+}
 
 function loadTradingViewChart(symbol, interval, mode = "pro") {
   const container = document.getElementById("tv_chart_container");
@@ -660,7 +756,7 @@ function renderAll(){
   document.getElementById("guideSub").textContent = activeCombo.label;
   loadTradingViewChart(activeSymbol, activeCombo.interval, currentChartMode);
   
-  const fullUrl = "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
+  const fullUrl = "https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15";
   document.getElementById("fullWebTabBtn").href = fullUrl;
 }
 
