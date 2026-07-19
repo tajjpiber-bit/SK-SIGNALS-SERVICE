@@ -244,16 +244,16 @@
 
       <div class="mode-switch-group">
         <button class="mode-btn active" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Real-Time Chart</button>
-        <button class="mode-btn" id="btnModePro" onclick="setChartMode('pro')">🛠️ Full Tools Mode</button>
-        <button class="mode-btn" onclick="openPopoutWindow()">🚀 Open TradingView (New Tab)</button>
+        <button class="mode-btn" id="btnModePro" onclick="setChartMode('pro')">🛠️ Full Drawing Tools</button>
+        <button class="mode-btn" style="color:var(--gold);" onclick="openFullWebViewTab()">🔐 Full Web View (Login) ↗</button>
       </div>
     </div>
 
     <div class="login-banner">
-      <span>🔑 <b>TradingView Sign In:</b> TradingView account log in aur Pine script indicators apply karne ke liye 'Open TradingView (New Tab)' use karein.</span>
+      <span>🔑 <b>TradingView Sign In:</b> Browser security ki waja se TradingView login hamesha new tab me open hota hai taake 100% login save rahe!</span>
       <div>
         <a class="login-btn-link" href="https://www.tradingview.com/accounts/signin/" target="_blank" rel="noopener">🔑 Sign In TradingView ↗</a>
-        <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="tvDirectLink" href="#" target="_blank" rel="noopener">Open Chart ↗</a>
+        <button class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line); cursor:pointer;" onclick="openFullWebViewTab()">Open Web Chart ↗</button>
       </div>
     </div>
 
@@ -306,20 +306,16 @@
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · NATIVE JS WIDGET LOADED</span>
-        Chart ab TradingView official JS library <code>tv.js</code> ke zariye load ho raha hai (bilkul 100% unblocked).
+        <span class="k">01 · WHY FULL WEB VIEW OPENS IN NEW TAB</span>
+        TradingView direct website URLs (<code>tradingview.com/chart/</code>) browser iframe security (<code>X-Frame-Options</code>) ki waja se webpage ke andar frame me block hoti hain. Is liye Full Web View new tab me open hota hai taake 100% login working rahe.
       </div>
       <div class="step">
-        <span class="k">02 · FULL DRAWING TOOLS</span>
-        <code>🛠️ Full Tools Mode</code> par switch karke Fibonacci, Trendlines, aur Technical Indicators draw karein.
-      </div>
-      <div class="step">
-        <span class="k">03 · ACCOUNT LOGIN & PINE SCRIPT</span>
-        Aap <code>🚀 Open TradingView (New Tab)</code> par click karke TradingView me apna account login aur Pine Editor script apply kar sakte hain.
+        <span class="k">02 · PRO DRAWING TOOLS MODE</span>
+        Webpage ke andar <code>🛠️ Full Drawing Tools</code> mode select karke aap chart par trendlines, fibonacci, aur technical tools draw kar sakte hain.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--gold-dim)">Solution:</b> Chart ab official TradingView JS engine se render ho raha hai jo Opera, Chrome, Edge aur Mobile sab me 100% chalega.
+        <b style="color:var(--gold-dim)">Solution:</b> <b>"Full Web View (Login)"</b> button ab direct new tab me full TradingView web editor kholega jahan aapka account 100% login chalega aur koi block error nahi aayega!
       </div>
     </div>
   </aside>
@@ -388,7 +384,7 @@ updatePKTClock();
 function loadTradingViewChart(symbol, interval, mode = "widget") {
   const container = document.getElementById("tv_chart_container");
   if (!container) return;
-  container.innerHTML = ""; // Clear existing
+  container.innerHTML = "";
 
   if (typeof TradingView !== "undefined") {
     new TradingView.widget({
@@ -406,7 +402,6 @@ function loadTradingViewChart(symbol, interval, mode = "widget") {
       "container_id": "tv_chart_container"
     });
   } else {
-    // Fallback iframe
     const params = new URLSearchParams({
       symbol: "OANDA:" + symbol,
       interval: interval,
@@ -434,9 +429,9 @@ function setChartMode(mode) {
   loadTradingViewChart(activeSymbol, activeCombo.interval, mode);
 }
 
-function openPopoutWindow() {
+function openFullWebViewTab() {
   const url = "https://www.tradingview.com/chart/?symbol=OANDA%3A" + activeSymbol + "&interval=" + activeCombo.interval;
-  window.open(url, "TradingViewTerminalWindow", "width=1380,height=850,resizable=yes,scrollbars=yes");
+  window.open(url, "_blank");
 }
 
 function renderSidebar(){
