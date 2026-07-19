@@ -143,8 +143,29 @@
   }
   .pine-modal-btn:hover{ background:var(--gold); color:#0a0d13; }
 
+  /* ---------- In-App Web Browser Address Bar ---------- */
+  .browser-address-bar{
+    display:flex; align-items:center; gap:8px; padding:8px 14px; background:#161b25; border-bottom:1px solid var(--line);
+    font-family:var(--mono); font-size:12px; flex-wrap:wrap;
+  }
+  .browser-nav-btn{
+    background:var(--panel); border:1px solid var(--line); color:var(--text); padding:4px 10px;
+    border-radius:4px; cursor:pointer; font-weight:bold;
+  }
+  .browser-nav-btn:hover{ background:var(--line); }
+  
+  .browser-url-input{
+    flex:1; min-width:200px; background:#0a0d13; border:1px solid var(--line); border-radius:4px;
+    color:var(--bull); padding:6px 12px; font-family:var(--mono); font-size:11.5px; outline:none;
+  }
+  .browser-go-btn{
+    background:var(--gold); color:#0a0d13; border:none; font-weight:bold; padding:6px 14px;
+    border-radius:4px; cursor:pointer; font-family:var(--mono); font-size:11.5px;
+  }
+
   .chart-wrap{ flex:1; min-height:480px; position:relative; background:#000; }
   #tv_chart_container{ width:100%; height:100%; min-height:480px; }
+  #browser_frame_container{ width:100%; height:100%; min-height:480px; display:none; }
 
   .login-banner{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -302,20 +323,35 @@
         <div class="mode-switch-group">
           <button class="mode-btn active" id="btnModePro" onclick="setChartMode('pro')">🛠️ Drawing Tools</button>
           <button class="mode-btn" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Simple View</button>
+          <button class="mode-btn" id="btnModeBrowser" onclick="setChartMode('browser')">🌐 In-App Browser</button>
         </div>
       </div>
     </div>
 
+    <!-- Embedded In-App Browser Address Bar -->
+    <div class="browser-address-bar" id="browserAddressBar" style="display:none;">
+      <button class="browser-nav-btn" onclick="browserNavBack()">◀</button>
+      <button class="browser-nav-btn" onclick="browserNavForward()">▶</button>
+      <button class="browser-nav-btn" onclick="browserRefresh()">🔄</button>
+      <input type="text" class="browser-url-input" id="browserUrlInput" value="https://s.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD&interval=15&theme=dark" placeholder="Type URL or search...">
+      <button class="browser-go-btn" onclick="loadBrowserUrlFromInput()">Go 🚀</button>
+      <button class="browser-nav-btn" style="color:var(--gold)" onclick="navigateBrowser('https://s.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD&interval=15&theme=dark')">📊 Chart</button>
+      <button class="browser-nav-btn" style="color:var(--bull)" onclick="navigateBrowser('https://www.tradingview.com/accounts/signin/')">🔑 Sign In</button>
+    </div>
+
     <div class="login-banner">
-      <span>📜 <b>Pine Script & Account Sync:</b> Apni Pine Script dekhne aur edit karne ke liye <code>"📜 Pine Script Editor"</code> click karein ya TradingView sign in karein.</span>
+      <span>🌐 <b>Embedded Browser Terminal:</b> Website ke andar in-app web browser active hai jahan aap URL type ya navigate kar sakte hain!</span>
       <div>
-        <button class="login-btn-link" onclick="openPineScriptModal()">📜 Open Pine Editor Code</button>
-        <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="fullWebTabBtn" href="https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15" target="_blank" rel="noopener">TradingView Account ↗</a>
+        <button class="login-btn-link" onclick="setChartMode('browser')">🌐 Launch In-App Browser</button>
+        <button class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line); cursor:pointer;" onclick="openPineScriptModal()">📜 Pine Editor</button>
       </div>
     </div>
 
     <div class="chart-wrap">
       <div id="tv_chart_container"></div>
+      <div id="browser_frame_container">
+        <iframe id="embeddedBrowserIframe" src="" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>
+      </div>
     </div>
   </main>
 
@@ -359,12 +395,12 @@
     </div>
 
     <div>
-      <h2 class="panel-title">Pine Script & Login Guide</h2>
+      <h2 class="panel-title">In-App Browser Guide</h2>
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · PINE SCRIPT EDITOR IN WEBSITE</span>
-        Upar top-right par <code>📜 Pine Script Editor & Code</code> click karke aap MTF BOX indicator ka poora v5 Pine script dekh, edit, aur copy kar sakte hain.
+        <span class="k">01 · IN-APP WEB BROWSER</span>
+        Upar <code>🌐 In-App Browser</code> tab par click karke aap website ke andar hi custom web browser use kar sakte hain.
       </div>
       <div class="step">
         <span class="k">02 · FULL WEB VIEW INSIDE WEBSITE</span>
@@ -372,7 +408,7 @@
       </div>
 
       <div class="urdu">
-        <b style="color:var(--gold-dim)">Script & Account Access:</b> Aap <b>"📜 Pine Script Editor"</b> button dabakar apni script ka poora code yahan dekh aur edit kar sakte hain.
+        <b style="color:var(--gold-dim)">In-App Browser:</b> <b>"🌐 In-App Browser"</b> dabane par webpage ke andar hi Address Bar wala web browser chal jata hai.
       </div>
     </div>
   </aside>
@@ -468,7 +504,7 @@ const COMBOS = [
 
 let activeSymbol = "XAUUSD";
 let activeCombo = COMBOS[0];
-let currentChartMode = "pro"; // Default to full drawing tools mode!
+let currentChartMode = "pro";
 
 let currentSignalType = "BUY";
 let currentEntryVal = "2415.50";
@@ -501,9 +537,24 @@ function copyPineCode() {
 }
 
 function loadTradingViewChart(symbol, interval, mode = "pro") {
-  const container = document.getElementById("tv_chart_container");
-  if (!container) return;
-  container.innerHTML = "";
+  const chartContainer = document.getElementById("tv_chart_container");
+  const browserContainer = document.getElementById("browser_frame_container");
+  const addressBar = document.getElementById("browserAddressBar");
+
+  if (mode === "browser") {
+    chartContainer.style.display = "none";
+    browserContainer.style.display = "block";
+    addressBar.style.display = "flex";
+    const targetUrl = `https://s.tradingview.com/widgetembed/?symbol=OANDA:${symbol}&interval=${interval}&hidesidetoolbar=0&symboledit=1&theme=dark`;
+    document.getElementById("browserUrlInput").value = targetUrl;
+    document.getElementById("embeddedBrowserIframe").src = targetUrl;
+    return;
+  }
+
+  chartContainer.style.display = "block";
+  browserContainer.style.display = "none";
+  addressBar.style.display = "none";
+  chartContainer.innerHTML = "";
 
   if (typeof TradingView !== "undefined") {
     new TradingView.widget({
@@ -544,8 +595,34 @@ function loadTradingViewChart(symbol, interval, mode = "pro") {
       hideideas: "1",
       locale: "en"
     });
-    container.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?${params.toString()}" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>`;
+    chartContainer.innerHTML = `<iframe src="https://s.tradingview.com/widgetembed/?${params.toString()}" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>`;
   }
+}
+
+function navigateBrowser(url) {
+  document.getElementById("browserUrlInput").value = url;
+  document.getElementById("embeddedBrowserIframe").src = url;
+}
+
+function loadBrowserUrlFromInput() {
+  let url = document.getElementById("browserUrlInput").value;
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = "https://" + url;
+  }
+  navigateBrowser(url);
+}
+
+function browserNavBack() {
+  try { document.getElementById("embeddedBrowserIframe").contentWindow.history.back(); } catch(e){}
+}
+
+function browserNavForward() {
+  try { document.getElementById("embeddedBrowserIframe").contentWindow.history.forward(); } catch(e){}
+}
+
+function browserRefresh() {
+  const iframe = document.getElementById("embeddedBrowserIframe");
+  iframe.src = iframe.src;
 }
 
 function toggleFullscreenChart() {
@@ -560,6 +637,7 @@ function setChartMode(mode) {
   currentChartMode = mode;
   document.getElementById("btnModeWidget").className = "mode-btn" + (mode === "widget" ? " active" : "");
   document.getElementById("btnModePro").className = "mode-btn" + (mode === "pro" ? " active" : "");
+  document.getElementById("btnModeBrowser").className = "mode-btn" + (mode === "browser" ? " active" : "");
   loadTradingViewChart(activeSymbol, activeCombo.interval, mode);
 }
 
@@ -755,9 +833,6 @@ function renderAll(){
   document.getElementById("comboLabel").textContent = activeCombo.label;
   document.getElementById("guideSub").textContent = activeCombo.label;
   loadTradingViewChart(activeSymbol, activeCombo.interval, currentChartMode);
-  
-  const fullUrl = "https://www.tradingview.com/chart/?symbol=OANDA%3AXAUUSD&interval=15";
-  document.getElementById("fullWebTabBtn").href = fullUrl;
 }
 
 renderAll();
