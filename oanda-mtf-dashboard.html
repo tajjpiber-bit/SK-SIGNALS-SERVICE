@@ -149,43 +149,74 @@
   }
   .pine-modal-btn:hover{ background:var(--gold); color:#0a0d13; }
 
-  /* ---------- Opera In-App Browser Address Bar ---------- */
-  .opera-browser-bar{
-    display:flex; align-items:center; gap:8px; padding:8px 14px; background:#1b080b; border-bottom:1px solid #ff1b2d33;
-    font-family:var(--mono); font-size:12px; flex-wrap:wrap;
+  /* ---------- Opera Full Browser UI ---------- */
+  .opera-container{
+    display:flex; flex:1; width:100%; height:100%; min-height:520px; background:#0e0f17; overflow:hidden;
   }
-  .opera-mark{
-    width:24px; height:24px; border-radius:50%; background:var(--opera-red); color:#fff;
-    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:13px; flex-shrink:0;
+  .opera-left-sidebar{
+    width:48px; background:#12131c; border-right:1px solid #ff1b2d33; display:flex; flex-direction:column;
+    align-items:center; padding:12px 0; gap:18px; flex-shrink:0;
   }
-  .browser-nav-btn{
-    background:var(--panel); border:1px solid var(--line); color:var(--text); padding:4px 10px;
-    border-radius:4px; cursor:pointer; font-weight:bold;
+  .opera-logo-icon{
+    width:28px; height:28px; border-radius:50%; background:var(--opera-red); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:15px; cursor:pointer;
+    box-shadow:0 0 10px rgba(255,27,45,0.4);
   }
-  .browser-nav-btn:hover{ background:var(--line); }
-  
-  .browser-url-input{
-    flex:1; min-width:200px; background:#0a0d13; border:1px solid var(--opera-red); border-radius:4px;
-    color:#ffffff; padding:6px 12px; font-family:var(--mono); font-size:11.5px; outline:none;
+  .opera-side-icon{
+    color:#8b93a3; font-size:16px; cursor:pointer; transition:.2s; display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:6px;
   }
-  .browser-go-btn{
-    background:var(--opera-red); color:#ffffff; border:none; font-weight:bold; padding:6px 14px;
-    border-radius:4px; cursor:pointer; font-family:var(--mono); font-size:11.5px;
+  .opera-side-icon:hover{ color:#fff; background:rgba(255,27,45,0.2); }
+
+  .opera-main-content{ flex:1; display:flex; flex-direction:column; background:#161726; overflow:hidden; }
+
+  /* Opera Top Tab Bar & Address Bar */
+  .opera-top-tabs{
+    display:flex; align-items:center; gap:6px; padding:6px 12px; background:#0f101a; border-bottom:1px solid #ff1b2d22;
+  }
+  .opera-tab{
+    background:#1d1e2e; color:#fff; padding:5px 14px; border-radius:6px 6px 0 0; font-family:var(--mono);
+    font-size:11.5px; display:flex; align-items:center; gap:8px; border:1px solid #ff1b2d44; border-bottom:none;
+  }
+  .opera-nav-bar{
+    display:flex; align-items:center; gap:8px; padding:8px 14px; background:#181928; border-bottom:1px solid #232a37;
+  }
+  .opera-search-input-wrap{
+    flex:1; display:flex; align-items:center; background:#0d0e17; border:1px solid var(--opera-red);
+    border-radius:20px; padding:4px 14px; gap:8px;
+  }
+  .opera-search-input{
+    flex:1; background:transparent; border:none; color:#fff; font-family:var(--mono); font-size:12px; outline:none;
   }
 
-  .speed-dial-bar{
-    display:flex; gap:6px; padding:6px 14px; background:#110507; border-bottom:1px solid var(--line);
-    font-family:var(--mono); font-size:11px; flex-wrap:wrap;
+  /* Opera Speed Dial Start Page Canvas */
+  .opera-start-page{
+    flex:1; background:radial-gradient(circle at 50% 30%, #301847, #0e0f17 80%); padding:30px 20px;
+    display:flex; flex-direction:column; align-items:center; gap:26px; overflow-y:auto;
   }
-  .speed-dial-item{
-    background:#1f0d11; border:1px solid #ff1b2d44; color:var(--text); padding:3px 10px;
-    border-radius:4px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:4px;
+
+  .opera-big-search-box{
+    width:100%; max-width:580px; background:#ffffff; border-radius:30px; padding:12px 22px;
+    display:flex; align-items:center; gap:12px; box-shadow:0 10px 30px rgba(0,0,0,0.5);
   }
-  .speed-dial-item:hover{ background:var(--opera-red); color:#fff; }
+  .opera-big-search-box input{
+    flex:1; border:none; background:transparent; font-size:15px; font-family:var(--display); color:#111; outline:none;
+  }
+
+  .speed-dial-grid{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:16px; width:100%; max-width:640px;
+  }
+  .speed-dial-tile{
+    background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px;
+    padding:16px 10px; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer;
+    transition:.2s; text-decoration:none; color:#fff; font-family:var(--mono); font-size:11px; text-align:center;
+    backdrop-filter:blur(10px);
+  }
+  .speed-dial-tile:hover{ background:var(--opera-red); transform:translateY(-3px); box-shadow:0 8px 20px rgba(255,27,45,0.4); }
+  .speed-dial-tile .tile-icon{ font-size:24px; }
 
   .chart-wrap{ flex:1; min-height:480px; position:relative; background:#000; }
   #tv_chart_container{ width:100%; height:100%; min-height:480px; }
-  #browser_frame_container{ width:100%; height:100%; min-height:480px; display:none; }
+  #browser_frame_container{ width:100%; height:100%; min-height:520px; display:none; }
 
   .login-banner{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -348,27 +379,8 @@
       </div>
     </div>
 
-    <!-- Opera In-App Browser Address Bar -->
-    <div class="opera-browser-bar" id="browserAddressBar" style="display:none;">
-      <div class="opera-mark">O</div>
-      <button class="browser-nav-btn" onclick="browserNavBack()">◀</button>
-      <button class="browser-nav-btn" onclick="browserNavForward()">▶</button>
-      <button class="browser-nav-btn" onclick="browserRefresh()">🔄</button>
-      <input type="text" class="browser-url-input" id="browserUrlInput" value="https://s.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD&interval=15&theme=dark" placeholder="Type URL or search...">
-      <button class="browser-go-btn" onclick="loadBrowserUrlFromInput()">Go 🚀</button>
-    </div>
-
-    <!-- Opera Speed Dial Bookmarks Bar -->
-    <div class="speed-dial-bar" id="speedDialBar" style="display:none;">
-      <span style="color:var(--opera-red); font-weight:bold;">Speed Dial:</span>
-      <div class="speed-dial-item" onclick="navigateBrowser('https://s.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD&interval=15&theme=dark')">📊 TV Live Chart</div>
-      <div class="speed-dial-item" onclick="navigateBrowser('https://www.tradingview.com/accounts/signin/')">🔑 TradingView Sign In</div>
-      <div class="speed-dial-item" onclick="navigateBrowser('https://www.tradingview.com/chart/?symbol=OANDA:XAUUSD')">📈 TV Full Web Editor</div>
-      <div class="speed-dial-item" onclick="openPineScriptModal()">📜 Pine Script Code</div>
-    </div>
-
     <div class="login-banner">
-      <span>🔴 <b>Opera Browser Edition:</b> Website ke andar Opera Browser Address Bar &amp; Speed Dial integrated hai!</span>
+      <span>🔴 <b>Opera Browser Terminal:</b> Aap Opera Start Page Search Bar me kuch bhi search ya Type kar sakte hain!</span>
       <div>
         <button class="login-btn-link" onclick="setChartMode('browser')">🔴 Launch Opera Browser</button>
         <button class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line); cursor:pointer;" onclick="openPineScriptModal()">📜 Pine Code</button>
@@ -377,8 +389,82 @@
 
     <div class="chart-wrap">
       <div id="tv_chart_container"></div>
+      
+      <!-- OPERA IN-APP BROWSER CONTAINER -->
       <div id="browser_frame_container">
-        <iframe id="embeddedBrowserIframe" src="" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>
+        <div class="opera-container">
+          <!-- Opera Left Red Sidebar -->
+          <div class="opera-left-sidebar">
+            <div class="opera-logo-icon" onclick="openOperaHome()">O</div>
+            <div class="opera-side-icon" title="Messenger">💬</div>
+            <div class="opera-side-icon" title="WhatsApp">🟢</div>
+            <div class="opera-side-icon" title="Spotify">🎵</div>
+            <div class="opera-side-icon" title="Settings">⚙️</div>
+          </div>
+
+          <div class="opera-main-content">
+            <!-- Opera Top Tabs & Address Bar -->
+            <div class="opera-top-tabs">
+              <div class="opera-tab">
+                <span>🔴 Speed Dial</span>
+                <span style="font-size:10px; cursor:pointer;" onclick="openOperaHome()">✕</span>
+              </div>
+              <span style="color:#8b93a3; cursor:pointer; font-size:16px;" onclick="openOperaHome()">+</span>
+            </div>
+
+            <div class="opera-nav-bar">
+              <button class="browser-nav-btn" onclick="browserNavBack()">◀</button>
+              <button class="browser-nav-btn" onclick="browserNavForward()">▶</button>
+              <button class="browser-nav-btn" onclick="browserRefresh()">🔄</button>
+              <div class="opera-search-input-wrap">
+                <span>🔍</span>
+                <input type="text" class="opera-search-input" id="operaAddressInput" value="https://www.google.com" placeholder="Search the web or enter web address...">
+              </div>
+              <button class="browser-go-btn" onclick="performOperaSearch()">Go 🚀</button>
+            </div>
+
+            <!-- Opera Start Page Body / Web Canvas -->
+            <div class="opera-start-page" id="operaStartPage">
+              <div class="opera-big-search-box">
+                <span style="font-size:20px; font-weight:bold; color:#4285F4;">G</span>
+                <input type="text" id="operaBigSearchInput" placeholder="Search the web" onkeydown="if(event.key==='Enter') performOperaBigSearch()">
+                <span style="cursor:pointer; font-size:18px; color:#666;" onclick="performOperaBigSearch()">🔍</span>
+              </div>
+
+              <!-- Opera Speed Dial Shortcut Cards Grid -->
+              <div class="speed-dial-grid">
+                <a class="speed-dial-tile" href="https://accounts.google.com" target="_blank" rel="noopener">
+                  <span class="tile-icon">🔑</span>
+                  <span>Google Login</span>
+                </a>
+                <a class="speed-dial-tile" href="https://www.tradingview.com/chart/" target="_blank" rel="noopener">
+                  <span class="tile-icon">📈</span>
+                  <span>TradingView</span>
+                </a>
+                <a class="speed-dial-tile" href="https://github.com/tajjpiber-bit/SK-SIGNALS-SERVICE" target="_blank" rel="noopener">
+                  <span class="tile-icon">🐙</span>
+                  <span>GitHub</span>
+                </a>
+                <a class="speed-dial-tile" href="https://www.forexfactory.com" target="_blank" rel="noopener">
+                  <span class="tile-icon">📊</span>
+                  <span>ForexFactory</span>
+                </a>
+                <a class="speed-dial-tile" href="https://temp-mail.org" target="_blank" rel="noopener">
+                  <span class="tile-icon">📬</span>
+                  <span>TempMail</span>
+                </a>
+                <div class="speed-dial-tile" onclick="openPineScriptModal()">
+                  <span class="tile-icon">📜</span>
+                  <span>Pine Editor</span>
+                </div>
+              </div>
+
+              <div style="width:100%; height:320px; border-radius:12px; overflow:hidden; border:1px solid #ff1b2d44;">
+                <iframe id="embeddedOperaIframe" src="https://s.tradingview.com/widgetembed/?symbol=OANDA:XAUUSD&interval=15&theme=dark" style="width:100%; height:100%; border:0;" allowfullscreen></iframe>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -427,16 +513,16 @@
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · OPERA BROWSER EDITION</span>
-        Upar red <code>🔴 Opera Browser Mode</code> dabane par Address Bar aur Speed Dial Bookmarks Bar active ho jati hain.
+        <span class="k">01 · OPERA SEARCH BAR</span>
+        Opera Start Page ke <code>Search the web</code> box me aap Google search ya koi bhi web address type kar sakte hain.
       </div>
       <div class="step">
-        <span class="k">02 · SPEED DIAL BOOKMARKS</span>
-        Speed dial me <code>🔑 TradingView Sign In</code>, <code>📈 TV Full Editor</code>, aur <code>📜 Pine Script Code</code> direct load hote hain.
+        <span class="k">02 · OPERA RED SIDEBAR & SPEED DIAL</span>
+        Left side Red Opera sidebar aur Speed Dial Shortcuts se direct TradingView aur Google Accounts khol sakte hain.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--opera-red)">Opera Edition:</b> <b>"🔴 Opera Browser Mode"</b> dabakar Opera ka Address Bar aur Speed Dial chalaein.
+        <b style="color:var(--opera-red)">Opera Edition:</b> Aapki picture ki tarah exact <b>Opera Start Page &amp; Search Bar</b> add kar diya gaya hai.
       </div>
     </div>
   </aside>
@@ -567,24 +653,18 @@ function copyPineCode() {
 function loadTradingViewChart(symbol, interval, mode = "pro") {
   const chartContainer = document.getElementById("tv_chart_container");
   const browserContainer = document.getElementById("browser_frame_container");
-  const addressBar = document.getElementById("browserAddressBar");
-  const speedDial = document.getElementById("speedDialBar");
 
   if (mode === "browser") {
     chartContainer.style.display = "none";
     browserContainer.style.display = "block";
-    addressBar.style.display = "flex";
-    speedDial.style.display = "flex";
     const targetUrl = `https://s.tradingview.com/widgetembed/?symbol=OANDA:${symbol}&interval=${interval}&hidesidetoolbar=0&symboledit=1&theme=dark`;
-    document.getElementById("browserUrlInput").value = targetUrl;
-    document.getElementById("embeddedBrowserIframe").src = targetUrl;
+    document.getElementById("operaAddressInput").value = targetUrl;
+    document.getElementById("embeddedOperaIframe").src = targetUrl;
     return;
   }
 
   chartContainer.style.display = "block";
   browserContainer.style.display = "none";
-  addressBar.style.display = "none";
-  speedDial.style.display = "none";
   chartContainer.innerHTML = "";
 
   if (typeof TradingView !== "undefined") {
@@ -630,29 +710,37 @@ function loadTradingViewChart(symbol, interval, mode = "pro") {
   }
 }
 
-function navigateBrowser(url) {
-  document.getElementById("browserUrlInput").value = url;
-  document.getElementById("embeddedBrowserIframe").src = url;
+function openOperaHome() {
+  document.getElementById("operaAddressInput").value = "https://www.google.com";
+  document.getElementById("embeddedOperaIframe").src = `https://s.tradingview.com/widgetembed/?symbol=OANDA:${activeSymbol}&interval=${activeCombo.interval}&theme=dark`;
 }
 
-function loadBrowserUrlFromInput() {
-  let url = document.getElementById("browserUrlInput").value;
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    url = "https://" + url;
+function performOperaSearch() {
+  let query = document.getElementById("operaAddressInput").value;
+  if (!query.startsWith("http://") && !query.startsWith("https://")) {
+    query = "https://www.google.com/search?q=" + encodeURIComponent(query);
   }
-  navigateBrowser(url);
+  document.getElementById("embeddedOperaIframe").src = query;
+}
+
+function performOperaBigSearch() {
+  let query = document.getElementById("operaBigSearchInput").value;
+  if (!query) return;
+  let url = "https://www.google.com/search?q=" + encodeURIComponent(query);
+  document.getElementById("operaAddressInput").value = url;
+  document.getElementById("embeddedOperaIframe").src = url;
 }
 
 function browserNavBack() {
-  try { document.getElementById("embeddedBrowserIframe").contentWindow.history.back(); } catch(e){}
+  try { document.getElementById("embeddedOperaIframe").contentWindow.history.back(); } catch(e){}
 }
 
 function browserNavForward() {
-  try { document.getElementById("embeddedBrowserIframe").contentWindow.history.forward(); } catch(e){}
+  try { document.getElementById("embeddedOperaIframe").contentWindow.history.forward(); } catch(e){}
 }
 
 function browserRefresh() {
-  const iframe = document.getElementById("embeddedBrowserIframe");
+  const iframe = document.getElementById("embeddedOperaIframe");
   iframe.src = iframe.src;
 }
 
