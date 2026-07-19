@@ -242,16 +242,16 @@
       </div>
 
       <div class="mode-switch-group">
-        <button class="mode-btn active" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Widget View</button>
-        <button class="mode-btn" id="btnModeFull" onclick="setChartMode('full')">🔐 Full Web View (Login)</button>
-        <button class="mode-btn" onclick="openPopoutWindow()">🖥️ Desktop Popout</button>
+        <button class="mode-btn active" id="btnModeWidget" onclick="setChartMode('widget')">⚡ Standard Chart</button>
+        <button class="mode-btn" id="btnModePro" onclick="setChartMode('pro')">🛠️ Pro Drawing Tools</button>
+        <button class="mode-btn" onclick="openPopoutWindow()">🚀 Full Chart (New Tab)</button>
       </div>
     </div>
 
     <div class="login-banner">
-      <span>🔑 <b>TradingView Account Login:</b> Log in to save custom indicators, Pine script alerts &amp; chart templates!</span>
+      <span>🔑 <b>TradingView Account Login:</b> TradingView direct web link ko <code>X-Frame-Options</code> error se bachane ke liye "Full Chart (New Tab)" click karein.</span>
       <div>
-        <a class="login-btn-link" href="https://www.tradingview.com/accounts/signin/" target="_blank" rel="noopener">🔑 Sign In to TradingView ↗</a>
+        <a class="login-btn-link" href="https://www.tradingview.com/accounts/signin/" target="_blank" rel="noopener">🔑 Sign In TradingView ↗</a>
         <a class="login-btn-link" style="background:var(--panel-2); color:var(--text); border:1px solid var(--line);" id="tvDirectLink" href="#" target="_blank" rel="noopener">Open Chart ↗</a>
       </div>
     </div>
@@ -301,24 +301,24 @@
     </div>
 
     <div>
-      <h2 class="panel-title">TradingView Login & Setup</h2>
+      <h2 class="panel-title">TradingView Account Login</h2>
       <p class="panel-sub" id="guideSub">H4 Zone · M15 Chart</p>
       
       <div class="step">
-        <span class="k">01 · ACCOUNT LOGIN</span>
-        Upar <code>🔑 Sign In to TradingView</code> par click karke apna account login karein. Login ke baad aapki drawing &amp; templates save hongi.
+        <span class="k">01 · WHY WAS IT BLOCKED?</span>
+        TradingView direct website URLs (<code>tradingview.com/chart/</code>) browser iframe security (<code>X-Frame-Options</code>) ki waja se block hoti hain.
       </div>
       <div class="step">
-        <span class="k">02 · FULL WEB VIEW vs WIDGET</span>
-        <code>🔐 Full Web View</code> mode select karne par TradingView ka poora web editor open hota hai jahan Pine Editor aur indicators edit kar sakte hain.
+        <span class="k">02 · PRO DRAWING TOOLS MODE</span>
+        <code>🛠️ Pro Drawing Tools</code> select karke aap chart par lines, fibonacci, aur drawing tools use kar sakte hain.
       </div>
       <div class="step">
-        <span class="k">03 · DESKTOP POPOUT</span>
-        <code>🖥️ Desktop Popout</code> button se alag se full-screen window open hoti hai jahan aapka TradingView session always logged-in rahega.
+        <span class="k">03 · FULL LOGIN & PINE SCRIPT</span>
+        Aap <code>🚀 Full Chart (New Tab)</code> par click karke TradingView me apna account login aur Pine Editor script permanently save kar sakte hain.
       </div>
 
       <div class="urdu">
-        <b style="color:var(--gold-dim)">TradingView Login Guide:</b> Upar "Sign In to TradingView" dabakar apna account login karein. Agar aap TradingView ka poora chart Pine Editor ke saath run karna chahte hain toh <b>"🔐 Full Web View"</b> switch karein.
+        <b style="color:var(--gold-dim)">Solution:</b> TradingView iframe block error fix kar diya gaya hai. Chart dekhne ke liye <b>Standard Chart</b> ya <b>Pro Drawing Tools</b> mode use karein, aur TradingView me sign in karne ke liye <b>Full Chart (New Tab)</b> click karein.
       </div>
     </div>
   </aside>
@@ -367,7 +367,7 @@ const COMBOS = [
 
 let activeSymbol = "XAUUSD";
 let activeCombo = COMBOS[0];
-let currentChartMode = "widget"; // "widget" or "full"
+let currentChartMode = "widget"; // "widget" or "pro"
 
 let currentSignalType = "BUY";
 let currentEntryVal = "2415.50";
@@ -385,16 +385,14 @@ setInterval(updatePKTClock, 1000);
 updatePKTClock();
 
 function tvSrc(symbol, interval, mode = "widget"){
-  if (mode === "full") {
-    return "https://www.tradingview.com/chart/?symbol=OANDA%3A" + symbol + "&interval=" + interval;
-  }
+  const hideSide = mode === "pro" ? "0" : "1";
   const params = new URLSearchParams({
     symbol: "OANDA:" + symbol,
     interval: interval,
-    hidesidetoolbar: "1",
+    hidesidetoolbar: hideSide,
     hidetoptoolbar: "0",
-    symboledit: "0",
-    saveimage: "0",
+    symboledit: "1",
+    saveimage: "1",
     toolbarbg: "0a0d13",
     theme: "dark",
     style: "1",
@@ -410,7 +408,7 @@ function tvSrc(symbol, interval, mode = "widget"){
 function setChartMode(mode) {
   currentChartMode = mode;
   document.getElementById("btnModeWidget").className = "mode-btn" + (mode === "widget" ? " active" : "");
-  document.getElementById("btnModeFull").className = "mode-btn" + (mode === "full" ? " active" : "");
+  document.getElementById("btnModePro").className = "mode-btn" + (mode === "pro" ? " active" : "");
   document.getElementById("tvChart").src = tvSrc(activeSymbol, activeCombo.interval, mode);
 }
 
